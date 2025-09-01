@@ -1,0 +1,94 @@
+version: '3.8'
+
+networks:
+  microservice-csit318:
+    driver: bridge
+
+services:
+  auth-mysql:
+    image: mysql:8.0
+    container_name: auth-mysql
+    volumes:
+      - ./data/auth_db_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    command: [
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_unicode_ci',
+      '--skip-character-set-client-handshake' # force all connection using utf8mb4
+    ]
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: auth
+      MYSQL_PASSWORD: auth123
+    ports:
+      - "3316:3306"
+    networks:
+      - microservice-csit318
+#    healthcheck:
+#      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+#      timeout: 20s
+#      retries: 10
+
+  shop-mysql:
+    image: mysql:8.0
+    container_name: shop-mysql
+    volumes:
+      - ./data/shop_db_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    command: [
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_unicode_ci',
+      '--skip-character-set-client-handshake' # force all connection using utf8mb4
+    ]
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: shop_db
+      MYSQL_USER: shop
+      MYSQL_PASSWORD: shop123
+    ports:
+      - "3317:3306"
+    networks:
+      - microservice-csit318
+
+  product-mysql:
+    image: mysql:8.0
+    container_name: product-mysql
+    volumes:
+      - ./data/product_db_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    command: [
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_unicode_ci',
+      '--skip-character-set-client-handshake' # force all connection using utf8mb4
+    ]
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: product_db
+      MYSQL_USER: product
+      MYSQL_PASSWORD: product123
+    ports:
+      - "3318:3306"
+    networks:
+      - microservice-csit318
+
+  order-mysql:
+    image: mysql:8.0
+    container_name: order-mysql
+    volumes:
+      - ./data/order_db_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    command: [
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_unicode_ci',
+      '--skip-character-set-client-handshake' # force all connection using utf8mb4
+    ]
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: order_db
+      MYSQL_USER: order
+      MYSQL_PASSWORD: order123
+    ports:
+      - "3319:3306"
+    networks:
+      - microservice-csit318
