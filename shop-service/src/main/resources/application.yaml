@@ -1,8 +1,8 @@
 server:
-  port: 8082
+  port: 8083
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3318/product_db
+    url: jdbc:mysql://localhost:3317/shop_db
     username: root
     password: root1234
     driver-class-name: com.mysql.cj.jdbc.Driver

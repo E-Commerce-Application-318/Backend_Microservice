@@ -36,13 +36,13 @@ USE shop_db;
 DROP TABLE IF EXISTS shops;
 -- Create shops table (Shop Service owns this)
 CREATE TABLE shops (
-                       id binary(16) primary key,
-                       user_id binary(16) not null,  -- References user from Auth Service
-                       name varchar(255) not null,
-                       address text,
-                       description text,
-                       created_at timestamp default current_timestamp,
-                       updated_at timestamp default current_timestamp on update current_timestamp
+    id binary(16) primary key,
+    user_id binary(16) not null,  -- References user from Auth Service
+    name varchar(255) not null,
+    address text,
+    description text,
+    created_at timestamp default current_timestamp,
+    updated_at timestamp default current_timestamp on update current_timestamp
 );
 -- Insert sample shops
 -- Insert sample shops with hardcoded UUIDs
