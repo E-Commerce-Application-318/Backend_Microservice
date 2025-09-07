@@ -1,4 +1,4 @@
-package com.backend.ddd.infrastructure.persistance.mapper;
+package com.backend.ddd.infrastructure.persistence.mapper;
 
 import com.backend.ddd.domain.model.entity.Product;
 import org.springframework.data.domain.Page;

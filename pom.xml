@@ -12,6 +12,8 @@
         <module>auth-service</module>
         <module>product-service</module>
         <module>shop-service</module>
+        <module>order-service</module>
+        <module>agent-service</module>
     </modules>
 
     <properties>
@@ -42,4 +44,11 @@
             <version>3.5.4</version>
         </dependency>
     </dependencies>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.4</version>
+        <relativePath/>
+    </parent>
 </project>

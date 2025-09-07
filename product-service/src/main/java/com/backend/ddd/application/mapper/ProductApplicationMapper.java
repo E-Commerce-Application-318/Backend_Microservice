@@ -11,6 +11,7 @@ public class ProductApplicationMapper {
                 .setId(product.getId())
                 .setShopId(product.getShopId())
                 .setName(product.getName())
+                .setDescription(product.getDescription())
                 .setBrand(product.getBrand())
                 .setPrice(product.getPrice())
                 .setStockNumber(product.getStockNumber());

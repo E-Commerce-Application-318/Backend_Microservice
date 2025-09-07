@@ -1,8 +1,8 @@
-package com.backend.ddd.infrastructure.persistance.repository;
+package com.backend.ddd.infrastructure.persistence.repository;
 
 import com.backend.ddd.domain.model.entity.Product;
 import com.backend.ddd.domain.repository.ProductDomainRepository;
-import com.backend.ddd.infrastructure.persistance.mapper.ProductJPAMapper;
+import com.backend.ddd.infrastructure.persistence.mapper.ProductJPAMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,36 +1,34 @@
 package com.backend.ddd.domain.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 
+import java.util.Date;
 import java.util.UUID;
 
-@Data
 @Entity
-@Table(name="products")
+@Data
+@Table(name = "shops")
 @Accessors(chain=true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product {
+public class Shop {
     @Id
     @GeneratedValue
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column(name="shop_id", columnDefinition = "BINARY(16)")
-    private UUID shopId;
+    @Column(name = "user_id", columnDefinition = "BINARY(16)", nullable = false)
+    private UUID userId;
 
     private String name;
-
     private String description;
+    private String address;
 
-    private String brand;
+    @Column(name = "created_at")
+    private Date createAt;
 
-    private Double price;
-
-    @Column(name = "stock_number")
-    private Integer stockNumber;
+    @Column(name = "updated_at")
+    private Date updateAt;
 }
