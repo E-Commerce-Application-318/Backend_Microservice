@@ -9,6 +9,7 @@ import java.util.UUID;
 public interface ProductAppService {
     List<ProductResponse> getAllProductsPagaination(Integer page, Integer pageSize, String sortBy, String sortOrder);
     ProductResponse getProductById(UUID id);
+    List<ProductResponse> getProductsByProductIds(List<UUID> productIds);
 
     // application for seller
     List<ProductResponse> getProductsByShopIdPagination(UUID shopId, Integer page, Integer pageSize, String sortBy, String sortOrder);

@@ -19,11 +19,11 @@ public class CartController {
     @Autowired
     private CartAppService cartAppService;
 
-    @GetMapping("/get-cart-items")
+    @GetMapping("/get-all-items")
     public ResponseEntity<ApiResponseDTO<CartResponseDTO>> getAllCartItemsByUserId(
             @PathVariable("userId") UUID userId
     ) {
-        CartResponseDTO cartResponseDTO = cartAppService.getCartDetailByUserId(userId);
+        CartResponseDTO cartResponseDTO = cartAppService.getAllProductsByUserId(userId);
 
         if  (cartResponseDTO == null) {
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Not found any products in cart"));
@@ -42,28 +42,27 @@ public class CartController {
         return ResponseEntity.ok().body(ApiResponseDTO.success("Add product successfully", true));
     }
 
-//    @PutMapping
-//    public ResponseEntity<ApiResponseDTO<Boolean>> updateCartItem(
-//        @PathVariable("userId") UUID userId,
-//        @RequestBody CartRequestDTO cartRequestDTO
-//    ) {
-//        Boolean success = cartAppService.
-//    }
+    @PutMapping("/update-product")
+    public ResponseEntity<ApiResponseDTO<Boolean>> updateCartItem(
+        @PathVariable("userId") UUID userId,
+        @RequestBody CartRequestDTO cartRequestDTO
+    ) {
+        if (cartAppService.updateCart(userId, cartRequestDTO.getProductId(), cartRequestDTO.getQuantity()))
+            return ResponseEntity.ok().body(ApiResponseDTO.success("Updated product successfully", true));
+        else
+            return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to update product"));
+    }
 
-    @DeleteMapping("/remove-product/{productId}")
+    @DeleteMapping("/remove-product")
     public ResponseEntity<ApiResponseDTO<Boolean>> removeProductFromCart(
             @PathVariable("userId") UUID userId,
             @RequestBody UUID productId
     ) {
-        try {
-            cartAppService.removeProductFromCart(userId, productId);
-            return ResponseEntity.ok().body(ApiResponseDTO.success("Remove product successfully", true));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to remove product"));
-        }
+        if (cartAppService.removeProductFromCart(userId, productId)) {
+            return ResponseEntity.ok().body(ApiResponseDTO.success("Removed product successfully", true));
+}
+        return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to remove product"));
     }
-//    @PutMapping("/update-product/{productId}")
-
 }
 
 

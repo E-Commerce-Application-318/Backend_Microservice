@@ -13,5 +13,5 @@ public class ProductResponseDTO {
     private String brand;
     private String shopName;
     private Double price;
-    private Integer quantity;
+    private Integer cartQuantity;
 }

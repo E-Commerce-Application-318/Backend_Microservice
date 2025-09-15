@@ -20,12 +20,12 @@ public class Cart {
     @Column(name = "id", columnDefinition = "bianry(16)")
     private UUID id;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", columnDefinition = "bianry(16)")
     private UUID userId;
 
-    @Column(name = "total_item")
-    private Integer totalItem;
+    @Column(name = "product_id", columnDefinition = "binary(16)")
+    private UUID productId;
 
-    @Column(name = "total_amount")
-    private Double totalAmount;
+    @Column(name = "quantity")
+    private Integer quantity;
 }

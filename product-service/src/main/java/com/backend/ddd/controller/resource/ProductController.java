@@ -7,7 +7,6 @@ import com.backend.ddd.controller.model.dto.ApiResponseDTO;
 import com.backend.ddd.controller.model.dto.ProductRequestDTO;
 import com.backend.ddd.controller.model.dto.ProductResponseDTO;
 import com.backend.ddd.controller.model.mapper.ProductControllerMapper;
-import com.backend.ddd.domain.model.entity.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,6 +52,18 @@ public class ProductController {
         return ResponseEntity.ok().body(ApiResponseDTO.success("Successful fetching product", productResponseDTO));
     }
 
+    @PostMapping("/product-detail-list")
+    public ResponseEntity<ApiResponseDTO<List<ProductResponseDTO>>> getProductDetailList(
+        @RequestBody List<UUID> productIds
+    ) {
+        List<ProductResponse> productResponses = productAppService.getProductsByProductIds(productIds);
+        if (productResponses == null || productResponses.isEmpty()) {
+            return ResponseEntity.badRequest().body(ApiResponseDTO.error("Not found any product!"));
+        }
+        List<ProductResponseDTO> productResponseDTOs = productControllerMapper.productResponseListToProductReponseDTOList(productResponses);
+        return ResponseEntity.ok().body(ApiResponseDTO.success("Successful fetching product", productResponseDTOs));
+    }
+
     @GetMapping("/shop/{shopId}/all-products")
     public ResponseEntity<ApiResponseDTO<List<ProductResponseDTO>>> getAllProductsByShopId(
             @PathVariable("shopId") UUID shopId,
@@ -66,7 +77,6 @@ public class ProductController {
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to fetch all products of this shop"));
         }
         List<ProductResponseDTO> productResponseDTOList = productControllerMapper.productResponseListToProductReponseDTOList(productResponseList);
-
         return ResponseEntity.ok().body(ApiResponseDTO.success("Successfully fetching all products", productResponseDTOList));
     }
 

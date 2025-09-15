@@ -9,9 +9,7 @@ import java.util.UUID;
 @Data
 @Accessors(chain = true)
 public class CartResponseDTO {
-    private UUID id;
     private Integer totalItem;
     private Double totalAmount;
-    List<ProductResponseDTO> productReponseDTOList;
-
+    List<ProductResponseDTO> productReponseDTOs;
 }

@@ -5,6 +5,7 @@ import com.backend.ddd.infrastructure.persistence.client.model.ExternalProduct;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.List;
 import java.util.UUID;
 
 public class ProductClient {
@@ -22,5 +23,16 @@ public class ProductClient {
                 .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<ExternalProduct>>() {})
                 .block();
         return externalApiResponse != null ? externalApiResponse.getData() : null;
+    }
+
+    public List<ExternalProduct> getProductsByProductIds(List<UUID> productIdList) {
+
+        ExternalApiResponse<List<ExternalProduct>> externalApiResponse = productWebClient.post()
+                .uri("/product-detail-list")
+                .bodyValue(productIdList)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<List<ExternalProduct>>>() {})
+                .block();
+        return externalApiResponse != null ? externalApiResponse.getData() : List.of();
     }
 }

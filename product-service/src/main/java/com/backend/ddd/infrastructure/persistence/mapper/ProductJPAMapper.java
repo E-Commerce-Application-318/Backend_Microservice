@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ProductJPAMapper extends JpaRepository<Product, UUID> {
@@ -14,4 +15,6 @@ public interface ProductJPAMapper extends JpaRepository<Product, UUID> {
     @Query("select p from Product p where p.shopId = :shopId")
     Page<Product> findAllByShopId(@Param("shopId") UUID shopId, Pageable pageable);
 
+    @Query("select p from Product p where p.id in :productIds")
+    List<Product> findByProductIds(@Param("productIds") List<UUID> productIds);
 }

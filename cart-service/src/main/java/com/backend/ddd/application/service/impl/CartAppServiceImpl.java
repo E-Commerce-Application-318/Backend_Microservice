@@ -4,18 +4,17 @@ import com.backend.ddd.application.mapper.CartMapper;
 import com.backend.ddd.application.service.CartAppService;
 import com.backend.ddd.controller.model.dto.CartResponseDTO;
 import com.backend.ddd.domain.model.entity.Cart;
-import com.backend.ddd.domain.model.entity.CartItem;
 import com.backend.ddd.domain.service.CartDomainService;
 import com.backend.ddd.infrastructure.persistence.client.ShopClient;
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalProduct;
 import com.backend.ddd.infrastructure.persistence.client.ProductClient;
-import com.backend.ddd.infrastructure.persistence.client.model.ExternalShop;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -32,63 +31,49 @@ public class CartAppServiceImpl implements CartAppService {
 
     private static final CartMapper cartMapper = new CartMapper();
 
-    private Cart getCartByUserId(UUID userId) {
-        Cart cart = cartDomainService.getCartByUserId(userId);
-        return cart;
-    }
+    public CartResponseDTO getAllProductsByUserId(UUID userId) {
+        List<Cart> carts = cartDomainService.getCartsByUserId(userId);
+        List<UUID> productIds = carts.stream()
+                .map(Cart::getProductId)
+                .collect(Collectors.toList());
+        List<ExternalProduct> externalProducts = productClient.getProductsByProductIds(productIds);
 
-    private List<CartItem> getCartItemsByUserId(UUID cardId) {
-        List<CartItem> cartItemList = cartDomainService.getCartItemsByCartId(cardId);
-        return cartItemList;
-    }
-
-    public CartResponseDTO getCartDetailByUserId(UUID userId) {
-        Cart cart = getCartByUserId(userId);
-        List<CartItem> cartItemList = getCartItemsByUserId(cart.getId());
-        log.info("Cart: " + cart);
-        log.info("List cart items: " + cartItemList);
-        return cartMapper.convertToCartResponseDTO(cart, cartItemList);
+        return cartMapper.convertToCartResponseDTO(carts, externalProducts);
     }
 
     public Boolean addProductToCart(UUID userId, UUID productId, Integer quantity) {
-        Cart cart = getCartByUserId(userId);
-
-
-        // get product information and shop information by calling product-service and shop-service API
-        ExternalProduct externalProduct = productClient.getProductById(productId);
-        ExternalShop externalShop = shopClient.getShopDetailByShopId(externalProduct.getShopId());
-
-        // convert product information and cart information into CartItem
-        CartItem cartItem = cartMapper.externalProductToCartItem(cart.getId(), externalShop.getName(), quantity, externalProduct);
-
-        // save new item added to CartItem
-        CartItem savedCartItem =  cartDomainService.saveCartItem(cartItem);
-
-        // update Cart total_item and total_amount
-        Integer newQuantity = cart.getTotalItem() + quantity;
-        Double newTotalAmount = cart.getTotalAmount() + quantity * externalProduct.getPrice();
-        cart.setTotalItem(newQuantity).setTotalAmount(newTotalAmount);
-        Cart updatedCart = cartDomainService.saveCart(cart);
-        return updatedCart != null;
+        Cart existCart =  cartDomainService.getCartByUserIdAndProductId(userId, productId);
+        if (existCart != null) {
+            return updateCart(userId, productId, quantity);
+        }
+        Cart cart = new Cart().setUserId(userId).setProductId(productId).setQuantity(quantity);
+        Cart savedCart = cartDomainService.saveCart(cart);
+        return savedCart != null;
     }
 
-//    public void updateProductInCart(UUID userId, UUID productId, Integer quantity) {
-//        Cart cart = getCartByUserId(userId);
-//
-//        CartItem cartItem = cartDomainService.getCartItemByCartIdAndProductId(cart.getId(), productId);
-//
-////        Car
-//        cartItem.setQuantity(quantity);
-//
-//        cartDomainService.
-//    }
+    public Boolean updateCart(UUID userId, UUID productId, Integer quantity) {
+        Cart cart = cartDomainService.getCartByUserIdAndProductId(userId, productId);
+        Integer updatedQuantity = cart.getQuantity() + quantity;
+        if (updatedQuantity <= 0) {
+            removeProductFromCart(userId, productId);
+            return true;
+        }
+        cart.setQuantity(updatedQuantity);
+        try {
+            cartDomainService.saveCart(cart);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
-    public void removeProductFromCart(UUID userId, UUID productId) {
-        Cart cart = getCartByUserId(userId);
-
-        CartItem cartItem = cartDomainService.getCartItemByCartIdAndProductId(cart.getId(), productId);
-
-        cartDomainService.removeCartItem(cartItem);
+    public Boolean removeProductFromCart(UUID userId, UUID productId) {
+        try {
+            cartDomainService.removeCartByUserIdAndProductId(userId, productId);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }

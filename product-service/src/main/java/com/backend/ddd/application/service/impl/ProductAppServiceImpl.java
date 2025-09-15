@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,7 +33,6 @@ public class ProductAppServiceImpl implements ProductAppService {
         Pageable pageable =  new PaginationMapper().convertToPageble(page, pageSize, sortBy, sortOrder);
 
         Page<Product> productsPage = productDomainService.getAllProductsPagination(pageable);
-        System.out.println("productsPage = " + productsPage.getContent());
         return productApplicationMapper.productListToProductResponseList(productsPage.getContent());
     }
 
@@ -43,6 +43,15 @@ public class ProductAppServiceImpl implements ProductAppService {
             return null;
         }
         return productApplicationMapper.productToProductResponse(product.get());
+    }
+
+    @Override
+    public List<ProductResponse> getProductsByProductIds(List<UUID> productIds) {
+        List<Product> products = productDomainService.getProductsByProductIds(productIds);
+        if (products.isEmpty()) {
+            return List.of();
+        }
+        return productApplicationMapper.productListToProductResponseList(products);
     }
 
     @Override

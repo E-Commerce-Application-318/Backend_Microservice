@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,6 +26,11 @@ public class ProductDomainServiceImpl implements ProductDomainService {
     @Override
     public Optional<Product> getProductById(UUID id) {
         return productDomainRepository.getProductById(id);
+    }
+
+    @Override
+    public List<Product> getProductsByProductIds(List<UUID> productIds) {
+        return productDomainRepository.getProductsByProductIds(productIds);
     }
 
     @Override

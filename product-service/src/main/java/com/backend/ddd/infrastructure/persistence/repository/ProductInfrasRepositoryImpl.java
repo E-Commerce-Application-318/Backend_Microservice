@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,6 +26,11 @@ public class ProductInfrasRepositoryImpl implements ProductDomainRepository {
     @Override
     public Optional<Product> getProductById(UUID id) {
         return productJPAMapper.findById(id);
+    }
+
+    @Override
+    public List<Product> getProductsByProductIds(List<UUID> productIds) {
+        return productJPAMapper.findByProductIds(productIds);
     }
 
     @Override
