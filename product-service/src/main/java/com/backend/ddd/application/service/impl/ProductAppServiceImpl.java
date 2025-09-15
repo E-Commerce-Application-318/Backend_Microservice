@@ -62,7 +62,6 @@ public class ProductAppServiceImpl implements ProductAppService {
                 .setBrand(productRequest.getBrand())
                 .setPrice(productRequest.getPrice())
                 .setStockNumber(productRequest.getStockNumber());
-        System.out.println("Product: " + product);
         Product savedProduct = productDomainService.addProduct(product);
 
         return productApplicationMapper.productToProductResponse(savedProduct);

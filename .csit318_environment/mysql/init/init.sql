@@ -13,6 +13,7 @@ CREATE TABLE users (
     name varchar(100),
     email varchar(100) unique,
     phone_number varchar(20),
+    address varchar (255),
     role_type varchar(20) not null,
     birth_date date,
     created_at timestamp default current_timestamp,
@@ -81,7 +82,6 @@ INSERT INTO products (id, shop_id, name, description, brand, price, stock_number
 (UUID_TO_BIN('11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa'), UUID_TO_BIN('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'), '27" IPS Sony Monitor', 'Professional monitor', 'SONY', 259.99, 20),
 (UUID_TO_BIN('22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb'), UUID_TO_BIN('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'), 'RGB Logitech Keyboard', 'RGB gaming keyboard', 'LOGITECH', 89.99, 40),
 (UUID_TO_BIN('33333333-cccc-cccc-cccc-cccccccccccc'), UUID_TO_BIN('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'), 'Ergonomic Anko Mouse', 'Ergonomic mouse', 'ANKO', 39.99, 60);
-
 -- PeripheralPros products (shop_id: cccccccc-cccc-cccc-cccc-cccccccccccc)
 INSERT INTO products (id, shop_id, name, description, brand, price, stock_number) VALUES
 (UUID_TO_BIN('44444444-dddd-dddd-dddd-dddddddddddd'), UUID_TO_BIN('cccccccc-cccc-cccc-cccc-cccccccccccc'), 'Gaming Headset', 'Professional gaming headset', 'RAZER', 129.99, 30),
@@ -130,3 +130,42 @@ INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price
 -- Order 2 items (Bob's order from GadgetHub)
 (UUID_TO_BIN('bbbbbbbb-2222-2222-2222-222222222222'), UUID_TO_BIN('11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa'), 1, 259.99, 259.99),
 (UUID_TO_BIN('bbbbbbbb-2222-2222-2222-222222222222'), UUID_TO_BIN('33333333-cccc-cccc-cccc-cccccccccccc'), 1, 39.99, 39.99);
+
+-- Cart Service Database Schema
+CREATE DATABASE IF NOT EXISTS cart_db
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_unicode_ci;
+USE cart_db;
+-- Drop tables if they exist
+DROP TABLE IF EXISTS carts;
+DROP TABLE IF EXISTS cart_items;
+-- Create order items table
+CREATE TABLE carts (
+    id binary(16) primary key,
+    user_id binary(16) not null,
+    total_item int not null,
+    total_amount decimal(10,2) not null
+);
+
+create table cart_items(
+    id binary (16) primary key,
+    cart_id binary(16) not null,
+    product_id binary(16) not null,
+    product_name varchar(255) not null,
+    brand varchar(50),
+    shop_name varchar(255) not null,
+    quantity int not null,
+    unit_price decimal(10, 2) not null
+);
+
+insert into carts (id, user_id, total_item, total_amount) values
+(UUID_TO_BIN('aaaaaaaa-1111-1111-1111-111111111111'), UUID_TO_BIN('55555555-5555-5555-5555-555555555555'), 0, 0.00),  -- Alice's cart
+(UUID_TO_BIN('bbbbbbbb-2222-2222-2222-222222222222'), UUID_TO_BIN('66666666-6666-6666-6666-666666666666'), 0, 0.00),  -- Bob's cart
+(UUID_TO_BIN('cccccccc-3333-3333-3333-333333333333'), UUID_TO_BIN('44444444-4444-4444-4444-444444444444'), 0, 0.00),  -- Peripheral Owner's cart
+(UUID_TO_BIN('dddddddd-4444-4444-4444-444444444444'), UUID_TO_BIN('33333333-3333-3333-3333-333333333333'), 0, 0.00),  -- Gadget Owner's cart
+(UUID_TO_BIN('eeeeeeee-5555-5555-5555-555555555555'), UUID_TO_BIN('22222222-2222-2222-2222-222222222222'), 0, 0.00),  -- Tech Owner's cart
+(UUID_TO_BIN('ffffffff-6666-6666-6666-666666666666'), UUID_TO_BIN('11111111-1111-1111-1111-111111111111'), 15, 2299.85);  -- Admin's cart
+
+insert into cart_items(id, cart_id, product_id, product_name, brand, shop_name, quantity, unit_price) values
+(UUID_TO_BIN('aaaaaaaa-1111-1111-1111-dddddddddddd'), UUID_TO_BIN('ffffffff-6666-6666-6666-666666666666'), UUID_TO_BIN('dddddddd-dddd-dddd-dddd-dddddddddddd'), '24" Dell FHD Monitor', 'DELL', 'TechTown', 5, 299.99),
+(UUID_TO_BIN('aaaaaaaa-1111-1111-1111-eeeeeeeeeeee'), UUID_TO_BIN('ffffffff-6666-6666-6666-666666666666'), UUID_TO_BIN('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'), 'Mechanical Logitech Keyboard', 'LOGITECH', 'TechTown',10, 79.99);
