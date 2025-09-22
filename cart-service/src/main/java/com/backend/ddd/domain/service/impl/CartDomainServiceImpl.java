@@ -25,6 +25,11 @@ public class CartDomainServiceImpl implements CartDomainService {
     }
 
     @Override
+    public List<Cart> getCartsByCartIds(List<UUID> cartIds) {
+        return cartDomainRepository.getCartsByCartIds(cartIds);
+    }
+
+    @Override
     public Cart saveCart(Cart cart) {
         return cartDomainRepository.saveCart(cart);
     }

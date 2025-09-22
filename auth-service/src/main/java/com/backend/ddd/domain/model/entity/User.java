@@ -37,6 +37,9 @@ public class User {
     @Column(length = 20, name = "phone_number")
     private String phoneNumber;
 
+    @Column(length = 20, name = "address")
+    private String address;
+
     @Column(length = 20, name = "role_type")
     private String role;
 

@@ -4,14 +4,15 @@ import com.backend.ddd.application.model.AuthResponse;
 import com.backend.ddd.application.model.LoginRequest;
 import com.backend.ddd.application.model.RegisterRequest;
 import com.backend.ddd.application.service.AuthAppService;
-import com.backend.ddd.controller.model.dto.ApiResponseDTO;
-import com.backend.ddd.controller.model.dto.AuthResponseDTO;
-import com.backend.ddd.controller.model.dto.LoginRequestDTO;
-import com.backend.ddd.controller.model.dto.RegisterRequestDTO;
+import com.backend.ddd.controller.model.dto.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -72,4 +73,12 @@ public class AuthController {
         return ResponseEntity.ok().body(ApiResponseDTO.success(authResponse.getMessage(), authResponseDTO));
     }
 
+    @GetMapping("/{userId}/get-address")
+    public ResponseEntity<ApiResponseDTO<UserDetailResponseDTO>> getAddress(
+            @PathVariable("userId") UUID userId) {
+        UserDetailResponseDTO userDetailResponseDTO = authAppService.getUserDetail(userId);
+        if (userDetailResponseDTO == null)
+            return ResponseEntity.badRequest().body(ApiResponseDTO.error("Cannot find address"));
+        return ResponseEntity.ok().body(ApiResponseDTO.success("Success fetching address", userDetailResponseDTO));
+    }
 }

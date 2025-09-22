@@ -9,17 +9,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/cart/{userId}")
+@RequestMapping("/cart")
 @Slf4j
 public class CartController {
 
     @Autowired
     private CartAppService cartAppService;
 
-    @GetMapping("/get-all-items")
+    @GetMapping("/{userId}/get-all-items")
     public ResponseEntity<ApiResponseDTO<CartResponseDTO>> getAllCartItemsByUserId(
             @PathVariable("userId") UUID userId
     ) {
@@ -31,7 +33,18 @@ public class CartController {
         return ResponseEntity.ok().body(ApiResponseDTO.success("Found products", cartResponseDTO));
     }
 
-    @PostMapping("/add-item")
+    @PostMapping("/get-productids-quantity-by-cart-ids")
+    public ResponseEntity<ApiResponseDTO<Map<UUID, Integer>>> getProductIdsAndQuantityByCartIds(
+            @RequestBody List<UUID> cartIds
+    ) {
+        Map<UUID, Integer> productIdsAndQuantity = cartAppService.getProductIdsAndQuantitiesByCartIds(cartIds);
+        if (productIdsAndQuantity == null || productIdsAndQuantity.isEmpty()) {
+            return ResponseEntity.badRequest().body(ApiResponseDTO.error("Not found any products in cart"));
+        }
+        return ResponseEntity.ok().body(ApiResponseDTO.success("Found products", productIdsAndQuantity));
+    }
+
+    @PostMapping("/{userId}/add-item")
     public ResponseEntity<ApiResponseDTO<Boolean>> addProductToCart(
             @PathVariable("userId") UUID userId,
             @RequestBody CartRequestDTO cartRequestDTO
@@ -42,7 +55,7 @@ public class CartController {
         return ResponseEntity.ok().body(ApiResponseDTO.success("Add product successfully", true));
     }
 
-    @PutMapping("/update-product")
+    @PutMapping("/{userId}/update-product")
     public ResponseEntity<ApiResponseDTO<Boolean>> updateCartItem(
         @PathVariable("userId") UUID userId,
         @RequestBody CartRequestDTO cartRequestDTO
@@ -53,7 +66,7 @@ public class CartController {
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to update product"));
     }
 
-    @DeleteMapping("/remove-product")
+    @DeleteMapping("/{userId}/remove-product")
     public ResponseEntity<ApiResponseDTO<Boolean>> removeProductFromCart(
             @PathVariable("userId") UUID userId,
             @RequestBody UUID productId

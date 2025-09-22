@@ -42,4 +42,9 @@ public class ProductDomainServiceImpl implements ProductDomainService {
     public Product addProduct(Product product) {
         return productDomainRepository.addProduct(product);
     }
+
+    @Override
+    public List<Product> updateProducts (List<Product> products) {
+        return productDomainRepository.updateProducts(products);
+    }
 }

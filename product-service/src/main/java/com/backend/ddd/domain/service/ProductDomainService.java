@@ -15,4 +15,5 @@ public interface ProductDomainService {
 
     Page<Product> getAllProductsByShopIdPagination(UUID shopId, Pageable pageable);
     Product addProduct(Product product);
+    List<Product> updateProducts(List<Product> products);
 }

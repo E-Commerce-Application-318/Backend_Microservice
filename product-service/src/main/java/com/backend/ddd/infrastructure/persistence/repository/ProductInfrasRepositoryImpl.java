@@ -42,4 +42,9 @@ public class ProductInfrasRepositoryImpl implements ProductDomainRepository {
     public Product addProduct(Product product) {
         return productJPAMapper.save(product);
     }
+
+    @Override
+    public List<Product> updateProducts(List<Product> products) {
+        return productJPAMapper.saveAll(products);
+    }
 }

@@ -4,13 +4,16 @@ import com.backend.ddd.application.model.AuthResponse;
 import com.backend.ddd.application.model.LoginRequest;
 import com.backend.ddd.application.model.RegisterRequest;
 import com.backend.ddd.application.service.AuthAppService;
+import com.backend.ddd.controller.model.dto.UserDetailResponseDTO;
 import com.backend.ddd.domain.model.entity.User;
 import com.backend.ddd.domain.service.AuthDomainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthAppServiceImpl implements AuthAppService {
@@ -81,5 +84,15 @@ public class AuthAppServiceImpl implements AuthAppService {
                 .setMessage("Register successful")
                 .setUsername(user.getUsername())
                 .setRole(user.getRole());
+    }
+
+    public UserDetailResponseDTO getUserDetail(UUID userId) {
+        Optional<User> user = authDomainService.getUserDetail(userId);
+        if (user.isEmpty()) {
+            return null;
+        }
+        return new UserDetailResponseDTO()
+                .setAddress(user.get().getAddress())
+                .setPhoneNumber(user.get().getPhoneNumber());
     }
 }

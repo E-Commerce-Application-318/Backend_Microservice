@@ -17,5 +17,5 @@ public interface ProductDomainRepository {
 
     Page<Product> getAllProductByShopIdPagination(UUID shopId, Pageable pageable);
     Product addProduct(Product product);
-
+    List<Product> updateProducts(List<Product> products);
 }

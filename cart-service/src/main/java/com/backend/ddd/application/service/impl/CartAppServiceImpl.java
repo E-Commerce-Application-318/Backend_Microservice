@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,13 @@ public class CartAppServiceImpl implements CartAppService {
         List<ExternalProduct> externalProducts = productClient.getProductsByProductIds(productIds);
 
         return cartMapper.convertToCartResponseDTO(carts, externalProducts);
+    }
+
+    @Override
+    public Map<UUID, Integer> getProductIdsAndQuantitiesByCartIds(List<UUID> cartIds) {
+        List<Cart> carts = cartDomainService.getCartsByCartIds(cartIds);
+        return carts.stream()
+                .collect(Collectors.toMap(Cart::getProductId, Cart::getQuantity));
     }
 
     public Boolean addProductToCart(UUID userId, UUID productId, Integer quantity) {

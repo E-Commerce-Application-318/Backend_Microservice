@@ -1,13 +1,14 @@
 package com.backend.ddd.application.mapper;
 
-import com.backend.ddd.application.model.ProductResponse;
+import com.backend.ddd.controller.model.dto.ProductResponseDTO;
 import com.backend.ddd.domain.model.entity.Product;
 
 import java.util.List;
 
 public class ProductApplicationMapper {
-    public ProductResponse productToProductResponse(Product product) {
-        return new ProductResponse()
+
+    public ProductResponseDTO productToProductResponseDTO(Product product) {
+        return new ProductResponseDTO()
                 .setId(product.getId())
                 .setShopId(product.getShopId())
                 .setName(product.getName())
@@ -17,12 +18,12 @@ public class ProductApplicationMapper {
                 .setStockNumber(product.getStockNumber());
     }
 
-    public List<ProductResponse> productListToProductResponseList(List<Product> products) {
+    public List<ProductResponseDTO> productsToProductResponseDTOs(List<Product> products) {
         if (products.isEmpty()) {
             return List.of();
         }
         return products.stream()
-                .map(this::productToProductResponse)
+                .map(this::productToProductResponseDTO)
                 .toList();
     }
 }

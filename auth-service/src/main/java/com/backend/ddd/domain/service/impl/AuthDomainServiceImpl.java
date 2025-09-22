@@ -3,16 +3,20 @@ package com.backend.ddd.domain.service.impl;
 import com.backend.ddd.domain.model.entity.User;
 import com.backend.ddd.domain.repository.AuthDomainRepository;
 import com.backend.ddd.domain.service.AuthDomainService;
+import com.backend.ddd.infrastructure.persistence.mapper.AuthJPAMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthDomainServiceImpl implements AuthDomainService {
 
     @Autowired
     AuthDomainRepository authDomainRepository;
+    @Autowired
+    private AuthJPAMapper authJPAMapper;
 
     @Override
     public Optional<User> getUserByUsername(String username) {
@@ -37,5 +41,10 @@ public class AuthDomainServiceImpl implements AuthDomainService {
     @Override
     public Boolean existsByEmail(String email) {
         return authDomainRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Optional<User> getUserDetail(UUID userId) {
+        return authDomainRepository.getUserDetail(userId);
     }
 }

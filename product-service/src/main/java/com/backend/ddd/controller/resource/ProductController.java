@@ -1,26 +1,25 @@
 package com.backend.ddd.controller.resource;
 
-import com.backend.ddd.application.model.ProductRequest;
-import com.backend.ddd.application.model.ProductResponse;
 import com.backend.ddd.application.service.ProductAppService;
 import com.backend.ddd.controller.model.dto.ApiResponseDTO;
 import com.backend.ddd.controller.model.dto.ProductRequestDTO;
 import com.backend.ddd.controller.model.dto.ProductResponseDTO;
-import com.backend.ddd.controller.model.mapper.ProductControllerMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/product")
 public class ProductController {
+
     @Autowired
     private ProductAppService productAppService;
-
-    private final ProductControllerMapper productControllerMapper = new ProductControllerMapper();
 
     @GetMapping("/all-products")
     public ResponseEntity<ApiResponseDTO<List<ProductResponseDTO>>> getAllProducts(
@@ -30,54 +29,55 @@ public class ProductController {
         @RequestParam(name = "sortorder", defaultValue = "asc") String sortOrder
 
     ) {
-        List<ProductResponse> productResponseList = productAppService.getAllProductsPagaination(
+        List<ProductResponseDTO> productResponseDTOs = productAppService.getAllProductsPagaination(
             page, pageSize, sortBy, sortOrder);
-        List<ProductResponseDTO> productResponseDTOList = productControllerMapper.productResponseListToProductReponseDTOList(productResponseList);
-
-        if (productResponseDTOList == null || productResponseDTOList.isEmpty()) {
+        if (productResponseDTOs == null || productResponseDTOs.isEmpty()) {
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to fetch all products"));
         }
-        return ResponseEntity.ok().body(ApiResponseDTO.success("Success fetching all products", productResponseDTOList));
+        return ResponseEntity.ok().body(ApiResponseDTO.success("Success fetching all products", productResponseDTOs));
     }
 
     @GetMapping("/product-detail/{productId}")
     public ResponseEntity<ApiResponseDTO<ProductResponseDTO>> getProductDetail(
             @PathVariable("productId") UUID productId
     ) {
-        ProductResponse productReponse = productAppService.getProductById(productId);
-        if (productReponse == null) {
+        ProductResponseDTO productResponseDTO = productAppService.getProductById(productId);
+        if (productResponseDTO == null) {
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Product ID not found"));
         }
-        ProductResponseDTO productResponseDTO = productControllerMapper.productResponseToProductResponseDTO(productReponse);
         return ResponseEntity.ok().body(ApiResponseDTO.success("Successful fetching product", productResponseDTO));
     }
 
     @PostMapping("/product-detail-list")
-    public ResponseEntity<ApiResponseDTO<List<ProductResponseDTO>>> getProductDetailList(
+    public ResponseEntity<ApiResponseDTO<List<ProductResponseDTO>>> getProductsByProductIds(
         @RequestBody List<UUID> productIds
     ) {
-        List<ProductResponse> productResponses = productAppService.getProductsByProductIds(productIds);
-        if (productResponses == null || productResponses.isEmpty()) {
+        List<ProductResponseDTO> productResponseDTOs = productAppService.getProductsByProductIds(productIds);
+        if (productResponseDTOs == null || productResponseDTOs.isEmpty()) {
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Not found any product!"));
         }
-        List<ProductResponseDTO> productResponseDTOs = productControllerMapper.productResponseListToProductReponseDTOList(productResponses);
         return ResponseEntity.ok().body(ApiResponseDTO.success("Successful fetching product", productResponseDTOs));
     }
 
     @GetMapping("/shop/{shopId}/all-products")
     public ResponseEntity<ApiResponseDTO<List<ProductResponseDTO>>> getAllProductsByShopId(
-            @PathVariable("shopId") UUID shopId,
-            @RequestParam("page") Integer page,
-            @RequestParam("pagesize") Integer pageSize,
-            @RequestParam("sortby") String sortBy,
-            @RequestParam("sortorder") String sortOrder
+            @PathVariable(value = "shopId") UUID shopId,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "pagesize", required = false) Integer pageSize,
+            @RequestParam(value = "sortby", required = false) String sortBy,
+            @RequestParam(value = "sortorder", required = false) String sortOrder
     ) {
-        List<ProductResponse> productResponseList = productAppService.getProductsByShopIdPagination(shopId, page, pageSize, sortBy, sortOrder);
-        if (productResponseList == null || productResponseList.isEmpty()) {
+        // handle null value for request params
+        page = page == null ? 1 : page;
+        pageSize = pageSize == null ? 10 : pageSize;
+        sortBy = sortBy == null ? "name" : sortBy;
+        sortOrder = sortOrder == null ? "asc" : sortOrder;
+
+        List<ProductResponseDTO> productResponseDTOs = productAppService.getProductsByShopIdPagination(shopId, page, pageSize, sortBy, sortOrder);
+        if (productResponseDTOs == null || productResponseDTOs.isEmpty()) {
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to fetch all products of this shop"));
         }
-        List<ProductResponseDTO> productResponseDTOList = productControllerMapper.productResponseListToProductReponseDTOList(productResponseList);
-        return ResponseEntity.ok().body(ApiResponseDTO.success("Successfully fetching all products", productResponseDTOList));
+        return ResponseEntity.ok().body(ApiResponseDTO.success("Successfully fetching all products", productResponseDTOs));
     }
 
     @PostMapping("/shop/{shopId}/add-product")
@@ -85,15 +85,41 @@ public class ProductController {
             @PathVariable("shopId") UUID shopId,
             @RequestBody ProductRequestDTO productRequestDTO
     ) {
-        ProductRequest productRequest =  productControllerMapper.productRequestDTOToProductRequest(productRequestDTO);
-        System.out.println("Product controller mapper: " + productRequest);
-        ProductResponse productResponse = productAppService.addProduct(shopId, productRequest);
-        System.out.println("Product controller mapper: " + productResponse);
-        if (productResponse == null) {
+        ProductResponseDTO productResponseDTO = productAppService.addProduct(shopId, productRequestDTO);
+        if (productResponseDTO == null) {
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to add product"));
         }
-
-        ProductResponseDTO productResponseDTO = productControllerMapper.productResponseToProductResponseDTO(productResponse);
         return ResponseEntity.ok().body(ApiResponseDTO.success("Add product successfully", productResponseDTO));
+    }
+
+    @PostMapping("/process-order")
+    public ResponseEntity<ApiResponseDTO<Boolean>> processOrder (
+            @RequestBody Map<UUID, Integer> productIdsAndQuantities
+    ) {
+        try {
+            boolean result = productAppService.updateProductsProcessOrder(productIdsAndQuantities);
+            if (result)
+                return ResponseEntity.ok().body(ApiResponseDTO.success("Process order successfully", true));
+            else
+                return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to process order because stock is not enough"));
+        } catch (Exception err) {
+            return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to process order: " + err));
+        }
+    }
+
+    @GetMapping("/cancle-order")
+    public ResponseEntity<ApiResponseDTO<Boolean>> cancleOrder (
+            @RequestBody Map<UUID, Integer> productIdsAndQuantities
+    ) {
+//        try {
+//            boolean result = productAppService.updateProductsProcessOrder(productIdsAndQuantities);
+//            if (result)
+//                return ResponseEntity.ok().body(ApiResponseDTO.success("Process order successfully", true));
+//            else
+//                return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to process order because stock is not enough"));
+//        } catch (Exception err) {
+//            return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to process order: " + err));
+//        }
+        return null;
     }
 }

@@ -28,7 +28,6 @@ public class ClientConfig {
         return WebClient.builder().baseUrl(baseUrl).build();
     }
 
-
     @Bean
     public ShopClient shopClient(WebClient shopWebClient) {
         return new ShopClient(shopWebClient);

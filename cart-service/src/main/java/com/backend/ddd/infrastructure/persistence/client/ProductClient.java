@@ -25,11 +25,11 @@ public class ProductClient {
         return externalApiResponse != null ? externalApiResponse.getData() : null;
     }
 
-    public List<ExternalProduct> getProductsByProductIds(List<UUID> productIdList) {
+    public List<ExternalProduct> getProductsByProductIds(List<UUID> productIds) {
 
         ExternalApiResponse<List<ExternalProduct>> externalApiResponse = productWebClient.post()
                 .uri("/product-detail-list")
-                .bodyValue(productIdList)
+                .bodyValue(productIds)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<List<ExternalProduct>>>() {})
                 .block();

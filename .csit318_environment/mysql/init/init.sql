@@ -20,13 +20,13 @@ CREATE TABLE users (
     updated_at timestamp default current_timestamp on update current_timestamp
 );
 -- Insert sample users
-INSERT INTO users (id, username, password, name, email, phone_number, role_type, birth_date) VALUES
-(UUID_TO_BIN('11111111-1111-1111-1111-111111111111'), 'admin',      '{bcrypt}$2a$10$adminhash',        'Admin User', 'admin@example.com', '0400000001', 'seller', '1990-01-01'),
-(UUID_TO_BIN('22222222-2222-2222-2222-222222222222'), 'owner_tech', '{bcrypt}$2a$10$ownerhash1',       'Tech Owner', 'owner.tech@example.com', '0400000002', 'seller', '1985-05-15'),
-(UUID_TO_BIN('33333333-3333-3333-3333-333333333333'), 'owner_gadg', '{bcrypt}$2a$10$ownerhash2',       'Gadget Owner', 'owner.gadget@example.com', '0400000003', 'seller', '1987-03-22'),
-(UUID_TO_BIN('44444444-4444-4444-4444-444444444444'), 'owner_peri', '{bcrypt}$2a$10$ownerhash3',       'Peripheral Owner', 'owner.peripheral@example.com', '0400000004', 'customer', '1989-07-30'),
-(UUID_TO_BIN('55555555-5555-5555-5555-555555555555'), 'alice',      '{bcrypt}$2a$10$customerhashalice','Alice Customer', 'alice@example.com', '0400000005', 'customer', '1995-06-18'),
-(UUID_TO_BIN('66666666-6666-6666-6666-666666666666'), 'bob',        '{bcrypt}$2a$10$customerhashbob',  'Bob Customer', 'bob@example.com', '0400000006', 'customer', '1993-02-10');
+INSERT INTO users (id, username, password, name, email, phone_number, address, role_type, birth_date) VALUES
+(UUID_TO_BIN('11111111-1111-1111-1111-111111111111'), 'admin',      '{bcrypt}$2a$10$adminhash',        'Admin User',     'admin@example.com', '0400000001', 'Wollongong', 'seller', '1990-01-01'),
+(UUID_TO_BIN('22222222-2222-2222-2222-222222222222'), 'owner_tech', '{bcrypt}$2a$10$ownerhash1',       'Tech Owner',     'owner.tech@example.com', '0400000002', 'Wollongong', 'seller', '1985-05-15'),
+(UUID_TO_BIN('33333333-3333-3333-3333-333333333333'), 'owner_gadg', '{bcrypt}$2a$10$ownerhash2',       'Gadget Owner',   'owner.gadget@example.com', '0400000003','Wollongong', 'seller', '1987-03-22'),
+(UUID_TO_BIN('44444444-4444-4444-4444-444444444444'), 'owner_peri', '{bcrypt}$2a$10$ownerhash3',       'Peripheral Owner', 'owner.peripheral@example.com', '0400000004','Wollongong', 'customer', '1989-07-30'),
+(UUID_TO_BIN('55555555-5555-5555-5555-555555555555'), 'alice',      '{bcrypt}$2a$10$customerhashalice','Alice Customer', 'alice@example.com', '0400000005', 'Wollongong','customer', '1995-06-18'),
+(UUID_TO_BIN('66666666-6666-6666-6666-666666666666'), 'bob',        '{bcrypt}$2a$10$customerhashbob',  'Bob Customer', 'bob@example.com', '0400000006', 'Wollongong','customer', '1993-02-10');
 
 -- Shop Service Database Schema
 CREATE DATABASE IF NOT EXISTS shop_db
@@ -62,7 +62,7 @@ DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS shop_products;
 -- Create products table (Product Service owns this)
 CREATE TABLE products (
-    id binary(16) primary key,
+    id binary(16) primary key primary default(UUID()),
     shop_id binary(16),
     name varchar(255) not null,
     description text,
@@ -98,30 +98,28 @@ DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 -- Create orders table (Order Service owns this)
 CREATE TABLE orders (
-    id binary(16) primary key,
+    id binary(16) primary key default (UUID_TO_BIN(UUID())),
     user_id binary(16) not null,     -- References user from Auth Service
-    status varchar(20) default 'PENDING',  -- PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
-    total_amount decimal(10, 2) not null,
-    payment_status varchar(20) default 'PENDING',  -- PENDING, PAID, FAILED
---     billingAddress text,
+    total_amount decimal(10,2),
+    status varchar(20) default 'PAYMENT REQUIRED',  -- PAYMENT REQUIRED, PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
     shipping_address text,
-    created_at timestamp default current_timestamp,
-    updated_at timestamp default current_timestamp on update current_timestamp
+    phone_number varchar(20),
+    created_at timestamp default current_timestamp
 );
 -- Create order items table
 CREATE TABLE order_items (
-     order_id binary(16) not null,
-     product_id binary(16) not null,  -- References product from Product Service
-     quantity int not null,
-     unit_price decimal(10,2) not null,
-     total_price decimal(10,2) not null,
-     created_at timestamp default current_timestamp,
-     foreign key (order_id) references orders(id) on delete cascade
+    order_id binary(16) not null,
+    product_id binary(16) not null,
+    quantity int not null,
+    unit_price decimal(10,2) not null,
+    total_price decimal(10,2) not null,
+    primary key (order_id, product_id)
 );
 -- Insert sample orders with hardcoded UUIDs
-INSERT INTO orders (id, user_id, status, total_amount, payment_status, shipping_address) VALUES
-(UUID_TO_BIN('aaaaaaaa-1111-1111-1111-111111111111'), UUID_TO_BIN('55555555-5555-5555-5555-555555555555'), "PENDING",  379.98, 'PENDING', '123 Customer Street, Customer City'),
-(UUID_TO_BIN('bbbbbbbb-2222-2222-2222-222222222222'), UUID_TO_BIN('66666666-6666-6666-6666-666666666666'), "PENDING",  299.98, 'CONFIRMED', '456 Customer Avenue, Customer City');
+INSERT INTO orders (id, user_id, status, shipping_address, phone_number) VALUES
+(UUID_TO_BIN('aaaaaaaa-1111-1111-1111-111111111111'), UUID_TO_BIN('55555555-5555-5555-5555-555555555555'), 'PENDING',  'UOW', '0400000005'),
+(UUID_TO_BIN('bbbbbbbb-2222-2222-2222-222222222222'), UUID_TO_BIN('66666666-6666-6666-6666-666666666666'), 'PENDING',  'Wollongong CBD', '0400000005');
+
 -- Insert sample order items with hardcoded UUIDs
 INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price) VALUES
 -- Order 1 items (Alice's order from TechTown)

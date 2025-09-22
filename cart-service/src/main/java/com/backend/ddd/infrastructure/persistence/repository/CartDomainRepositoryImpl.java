@@ -21,9 +21,13 @@ public class CartDomainRepositoryImpl implements CartDomainRepository {
 
     @Override
     public Cart getCartByUserIdAndProductId(UUID userId, UUID productId) {
-        return  cartJPAMapper.getCartByUserIdAndProductId(userId, productId);
+        return cartJPAMapper.getCartByUserIdAndProductId(userId, productId);
     }
 
+    @Override
+    public List<Cart> getCartsByCartIds(List<UUID> cartIds) {
+        return cartJPAMapper.findAllById(cartIds);
+    }
     @Override
     public Cart saveCart(Cart cart) {
         return cartJPAMapper.save(cart);

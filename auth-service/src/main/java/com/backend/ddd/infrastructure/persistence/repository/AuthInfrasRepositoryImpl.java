@@ -2,10 +2,8 @@ package com.backend.ddd.infrastructure.persistence.repository;
 
 import com.backend.ddd.domain.model.entity.User;
 import com.backend.ddd.domain.repository.AuthDomainRepository;
-import com.backend.ddd.infrastructure.config.SecurityConfig;
 import com.backend.ddd.infrastructure.persistence.mapper.AuthJPAMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,5 +40,10 @@ public class AuthInfrasRepositoryImpl implements AuthDomainRepository {
     @Override
     public Boolean existsByEmail(String email) {
         return authJPAMapper.findByEmail(email).isPresent();
+    }
+
+    @Override
+    public Optional<User> getUserDetail(UUID userID) {
+        return authJPAMapper.findById(userID);
     }
 }
