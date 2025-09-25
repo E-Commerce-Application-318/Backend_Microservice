@@ -1,8 +1,10 @@
 package com.backend.ddd.infrastructure.persistence.client.model;
 
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.Accessors;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Accessors(chain=true)
 public class ExternalApiResponse <T> {

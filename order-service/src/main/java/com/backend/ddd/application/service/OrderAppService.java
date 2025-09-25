@@ -7,4 +7,8 @@ import java.util.UUID;
 
 public interface OrderAppService {
     OrderResponseDTO createOrder(UUID userId, List<UUID> cartIds);
+
+    /** Delete an order and refund product stock */
+    boolean deleteOrder(UUID orderId);
+
 }

@@ -12,6 +12,7 @@ import java.util.UUID;
 public class ProductClient {
     private final WebClient productWebClient;
 
+
     public ProductClient(WebClient productWebClient) {
         this.productWebClient = productWebClient;
     }
@@ -29,6 +30,18 @@ public class ProductClient {
     public Boolean processOrder(Map<UUID, Integer> productIdsAndQuantities) {
         ExternalApiResponse<Boolean> externalApiResponse = productWebClient.post()
                 .uri("/process-order")
+                .bodyValue(productIdsAndQuantities)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<Boolean>>() {})
+                .block();
+        return externalApiResponse != null && Boolean.TRUE.equals(externalApiResponse.getData());
+    }
+
+    // add new code
+    // Refund when cancel/delete products
+    public Boolean refundOrder(Map<UUID, Integer> productIdsAndQuantities) {
+        ExternalApiResponse<Boolean> externalApiResponse = productWebClient.post()
+                .uri("/refund-order")
                 .bodyValue(productIdsAndQuantities)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<Boolean>>() {})

@@ -12,12 +12,21 @@ import com.backend.ddd.infrastructure.persistence.client.CartClient;
 import com.backend.ddd.infrastructure.persistence.client.ProductClient;
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalProduct;
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalUser;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
+import java.util.stream.Collectors;
 import java.util.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Slf4j
 @Service
 public class OrderAppServiceImpl implements OrderAppService {
@@ -95,5 +104,48 @@ public class OrderAppServiceImpl implements OrderAppService {
         // processing the order -> after confirmation from user -> input correct payment -> change the status into Preparing and Shipping
 
         return orderMapper.OrderAndOrderItemsToOrderResponseDTO(savedOrder, savedOrderItems);
+
     }
+    /** Delete an order:
+     *  1. Find the order by id
+     *  2. Get all items in the order
+     *  3. Call product-service to refund product quantities
+     *  4. Delete order items
+     *  5. Delete the order itself
+     */
+    @Override
+    @Transactional
+    public boolean deleteOrder(UUID orderId) {
+        // Step 1: Check if order exists
+        Order order = orderDomainService.findOrderById(orderId);
+        if (order == null) {
+            throw new RuntimeException("Order not found: " + orderId);
+        }
+
+        // Step 2: Get items of the order
+        List<OrderItem> items = orderDomainService.findOrderItemsByOrderId(orderId);
+
+        // Step 3: Build productId -> quantity map for refund
+        Map<UUID, Integer> productQuantities = items.stream()
+                .collect(Collectors.toMap(
+                        oi -> oi.getOrderItemId().getProductId(),
+                        OrderItem::getQuantity,
+                        Integer::sum
+                ));
+
+        // Step 4: Call product-service to refund stock
+        if (!productQuantities.isEmpty()) {
+            Boolean ok = productWebClient.refundOrder(productQuantities);
+            if (!Boolean.TRUE.equals(ok)) {
+                throw new RuntimeException("Refund inventory failed");
+            }
+        }
+
+        // Step 5: Delete items then delete order
+        orderDomainService.deleteOrderItemsByOrderId(orderId);
+        orderDomainService.deleteOrderById(orderId);
+
+        return true;
+    }
+
 }

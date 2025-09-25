@@ -1,14 +1,14 @@
 package com.backend.ddd.domain.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Data
 @Entity
 @Table(name = "orders")

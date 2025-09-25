@@ -49,4 +49,21 @@ public class OrderController {
     public Boolean updateOrder(@PathVariable("userId") String userId) {
         return true;
     }
+
+    /** DELETE endpoint to remove an order and refund stock */
+    @DeleteMapping("/{orderId}/delete")
+    public ResponseEntity<ApiResponseDTO<Boolean>> deleteOrder(
+            @PathVariable("orderId") UUID orderId
+    ) {
+        try {
+            boolean ok = orderAppService.deleteOrder(orderId);
+            if (ok) {
+                return ResponseEntity.ok(ApiResponseDTO.success("Delete order & refund inventory successfully", true));
+            }
+            return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to delete order"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponseDTO.error(e.getMessage()));
+        }
+    }
+
 }
