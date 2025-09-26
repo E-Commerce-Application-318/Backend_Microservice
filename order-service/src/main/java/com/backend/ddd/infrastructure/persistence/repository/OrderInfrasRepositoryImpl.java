@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Repository
@@ -20,6 +21,15 @@ public class OrderInfrasRepositoryImpl implements OrderDomainRepository {
     @Autowired
     private OrderItemJPAMapper orderItemJPAMapper;
 
+    @Override
+    public Order getOrderById(UUID orderId) {
+        return orderJPAMapper.findById(orderId).orElse(null);
+    }
+
+
+    public List<Order> findOrdersByUserId(UUID userId) {
+        return orderJPAMapper.findOrdersByUserId(userId);
+    }
     @Override
     public Order saveOrder(Order order) {
         return orderJPAMapper.save(order);

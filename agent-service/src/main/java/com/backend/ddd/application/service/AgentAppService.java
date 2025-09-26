@@ -12,7 +12,7 @@ public interface AgentAppService {
             
             Rules that you must obey:
             
-            1. Before getting the order details or canceling the order, 
+            1. Before creating the order for customer, get the api of cart for user to choose the cart that they want to checkout.
             
             2. 
             

@@ -107,8 +107,8 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/cancle-order")
-    public ResponseEntity<ApiResponseDTO<Boolean>> cancleOrder (
+    @GetMapping("/cancel-order")
+    public ResponseEntity<ApiResponseDTO<Boolean>> cancelOrder (
             @RequestBody Map<UUID, Integer> productIdsAndQuantities
     ) {
 //        try {

@@ -1,6 +1,6 @@
 package com.backend.ddd.domain.repository;
 
-import com.backend.ddd.controller.model.dto.UserDetailResponseDTO;
+import com.backend.ddd.domain.model.entity.Payment;
 import com.backend.ddd.domain.model.entity.User;
 
 import java.util.Optional;
@@ -13,4 +13,7 @@ public interface AuthDomainRepository {
     Boolean existsByUsername(String username);
     Boolean existsByEmail(String email);
     Optional<User> getUserDetail(UUID userID);
+
+    // Payment database
+    Payment getPaymentByUserId(UUID userId);
 }

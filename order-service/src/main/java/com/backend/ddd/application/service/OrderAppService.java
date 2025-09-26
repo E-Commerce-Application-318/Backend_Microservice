@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface OrderAppService {
     OrderResponseDTO createOrder(UUID userId, List<UUID> cartIds);
+    String updateOrderAddressPhoneNumber(UUID userId, String address, String phoneNumber);
 }

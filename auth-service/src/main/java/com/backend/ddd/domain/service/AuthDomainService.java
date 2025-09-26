@@ -1,5 +1,6 @@
 package com.backend.ddd.domain.service;
 
+import com.backend.ddd.domain.model.entity.Payment;
 import com.backend.ddd.domain.model.entity.User;
 
 import java.util.Optional;
@@ -12,4 +13,6 @@ public interface AuthDomainService {
     Boolean existsByUsername(String username);
     Boolean existsByEmail(String email);
     Optional<User> getUserDetail(UUID userId);
+
+    Payment getPaymentByUserId(UUID userId);
 }

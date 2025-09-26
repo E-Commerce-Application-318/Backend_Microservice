@@ -5,7 +5,7 @@ langchain4j:
   google-ai-gemini:
     chat-model:
       api-key: AIzaSyCUc5hh0ul-v9mZiiq1gxrdsfwQ6HlIJsk
-      model-name=gemini-2: gemini-2:0-flash-lite
+      model-name: gemini-2.0-flash-lite
       strict-tools: true
       temperature: 0.0
       timeout: PT60S

@@ -4,9 +4,12 @@ import com.backend.ddd.application.model.AuthResponse;
 import com.backend.ddd.application.model.LoginRequest;
 import com.backend.ddd.application.model.RegisterRequest;
 import com.backend.ddd.application.service.AuthAppService;
+import com.backend.ddd.controller.model.dto.PaymentRequestDTO;
 import com.backend.ddd.controller.model.dto.UserDetailResponseDTO;
+import com.backend.ddd.domain.model.entity.Payment;
 import com.backend.ddd.domain.model.entity.User;
 import com.backend.ddd.domain.service.AuthDomainService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ import javax.swing.text.html.Option;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class AuthAppServiceImpl implements AuthAppService {
 
@@ -86,6 +90,7 @@ public class AuthAppServiceImpl implements AuthAppService {
                 .setRole(user.getRole());
     }
 
+    @Override
     public UserDetailResponseDTO getUserDetail(UUID userId) {
         Optional<User> user = authDomainService.getUserDetail(userId);
         if (user.isEmpty()) {
@@ -94,5 +99,17 @@ public class AuthAppServiceImpl implements AuthAppService {
         return new UserDetailResponseDTO()
                 .setAddress(user.get().getAddress())
                 .setPhoneNumber(user.get().getPhoneNumber());
+    }
+
+    @Override
+    public Boolean processPayment(UUID userId, PaymentRequestDTO paymentRequestDTO) {
+        Payment payment = authDomainService.getPaymentByUserId(userId);
+        log.info("Payment " + payment);
+        log.info("Payment request " + paymentRequestDTO);
+        // check payment of user saved in database with payment from request
+        return (payment.getCardNumber().equals(paymentRequestDTO.getCardNumber())
+        & payment.getCardHolderName().equals(paymentRequestDTO.getCardHolderName())
+        & payment.getExpiryDate().equals(paymentRequestDTO.getExpiryDate())
+        & payment.getCvv().equals(paymentRequestDTO.getCvv()));
     }
 }

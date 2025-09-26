@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/agents")
 public class AgentController {
 
-    @Autowired
-    private AgentAppService agentAppService;
+//    @Autowired
+//    private AgentAppService agentAppService;
 
     @GetMapping
     public String customerSupportAgent(
@@ -21,7 +21,7 @@ public class AgentController {
             @RequestParam String userMessage
     ) {
         // Call the agent service to get the response
-        Result<String> result = agentAppService.answer(sessionId, userMessage);
-        return "";
+//        Result<String> result = agentAppService.answer(sessionId, userMessage);
+        return userMessage;
     }
 }

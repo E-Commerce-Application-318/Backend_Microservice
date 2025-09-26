@@ -1,9 +1,10 @@
 package com.backend.ddd.domain.service.impl;
 
+import com.backend.ddd.domain.model.entity.Payment;
 import com.backend.ddd.domain.model.entity.User;
 import com.backend.ddd.domain.repository.AuthDomainRepository;
 import com.backend.ddd.domain.service.AuthDomainService;
-import com.backend.ddd.infrastructure.persistence.mapper.AuthJPAMapper;
+import com.backend.ddd.infrastructure.persistence.mapper.UserJPAMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ public class AuthDomainServiceImpl implements AuthDomainService {
     @Autowired
     AuthDomainRepository authDomainRepository;
     @Autowired
-    private AuthJPAMapper authJPAMapper;
+    private UserJPAMapper authJPAMapper;
 
     @Override
     public Optional<User> getUserByUsername(String username) {
@@ -46,5 +47,10 @@ public class AuthDomainServiceImpl implements AuthDomainService {
     @Override
     public Optional<User> getUserDetail(UUID userId) {
         return authDomainRepository.getUserDetail(userId);
+    }
+
+    @Override
+    public Payment getPaymentByUserId(UUID userId) {
+        return authDomainRepository.getPaymentByUserId(userId);
     }
 }

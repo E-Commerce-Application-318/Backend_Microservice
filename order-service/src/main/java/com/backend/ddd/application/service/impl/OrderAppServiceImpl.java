@@ -15,6 +15,7 @@ import com.backend.ddd.infrastructure.persistence.client.model.ExternalUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
 
@@ -95,5 +96,31 @@ public class OrderAppServiceImpl implements OrderAppService {
         // processing the order -> after confirmation from user -> input correct payment -> change the status into Preparing and Shipping
 
         return orderMapper.OrderAndOrderItemsToOrderResponseDTO(savedOrder, savedOrderItems);
+    }
+
+    @Override
+    public String updateOrderAddressPhoneNumber(UUID orderId, String address, String phoneNumber) {
+        Order order = orderDomainService.getOrderById(orderId);
+        if (order == null) {
+            return "Not Found the order by orderId: " + orderId;
+        }
+        if (address != null) {
+            order.setShippingAddress(address);
+        }
+        if (phoneNumber != null) {
+            order.setPhoneNumber(phoneNumber);
+        }
+        try {
+            orderDomainService.saveOrder(order);
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+        return "Updated successfully";
+    }
+
+    public Boolean makePayment(
+            @RequestParam("orderId") UUID orderId
+    ) {
+        return true;
     }
 }

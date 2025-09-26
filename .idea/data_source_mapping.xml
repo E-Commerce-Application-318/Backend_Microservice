@@ -3,5 +3,8 @@
   <component name="DataSourcePerFileMappings">
     <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/3ced16bf-c75e-40d8-848c-d3c7be4bfbc0/console.sql" value="3ced16bf-c75e-40d8-848c-d3c7be4bfbc0" />
     <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/b5fa5a6f-221a-4830-beeb-c489e493bc9a/console.sql" value="b5fa5a6f-221a-4830-beeb-c489e493bc9a" />
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/b5fa5a6f-221a-4830-beeb-c489e493bc9a/console_1.sql" value="b5fa5a6f-221a-4830-beeb-c489e493bc9a" />
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/b5fa5a6f-221a-4830-beeb-c489e493bc9a/console_2.sql" value="b5fa5a6f-221a-4830-beeb-c489e493bc9a" />
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/b5fa5a6f-221a-4830-beeb-c489e493bc9a/console_3.sql" value="b5fa5a6f-221a-4830-beeb-c489e493bc9a" />
   </component>
 </project>

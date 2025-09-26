@@ -81,4 +81,15 @@ public class AuthController {
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Cannot find address"));
         return ResponseEntity.ok().body(ApiResponseDTO.success("Success fetching address", userDetailResponseDTO));
     }
+
+    @PostMapping("/{userId}/confirm_payment")
+    public ResponseEntity<ApiResponseDTO<Boolean>> getPayment(
+            @PathVariable("userId") UUID userId,
+            @RequestBody PaymentRequestDTO paymentRequestDTO
+    ) {
+        if (authAppService.processPayment(userId, paymentRequestDTO)) {
+            return ResponseEntity.ok().body(ApiResponseDTO.success("Payment confirmed", true));
+        }
+        return ResponseEntity.badRequest().body(ApiResponseDTO.error("Payment Detail wrong"));
+    }
 }

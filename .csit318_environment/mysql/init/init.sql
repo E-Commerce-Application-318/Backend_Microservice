@@ -5,6 +5,7 @@ CREATE DATABASE IF NOT EXISTS auth_db
 USE auth_db;
 -- Drop tables if they exist
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS payments;
 -- Create users table for authentication
 CREATE TABLE users (
     id binary(16) primary key,
@@ -19,6 +20,15 @@ CREATE TABLE users (
     created_at timestamp default current_timestamp,
     updated_at timestamp default current_timestamp on update current_timestamp
 );
+CREATE TABLE payments
+(
+    id               binary(16) primary key,
+    user_id          binary(16) not null,
+    card_number      varchar(20)  not null,
+    card_holder_name varchar(100) not null,
+    expiry_date      varchar(7)   not null, -- Format: MM/YYYY
+    cvv              varchar(4)   not null
+);
 -- Insert sample users
 INSERT INTO users (id, username, password, name, email, phone_number, address, role_type, birth_date) VALUES
 (UUID_TO_BIN('11111111-1111-1111-1111-111111111111'), 'admin',      '{bcrypt}$2a$10$adminhash',        'Admin User',     'admin@example.com', '0400000001', 'Wollongong', 'seller', '1990-01-01'),
@@ -27,6 +37,19 @@ INSERT INTO users (id, username, password, name, email, phone_number, address, r
 (UUID_TO_BIN('44444444-4444-4444-4444-444444444444'), 'owner_peri', '{bcrypt}$2a$10$ownerhash3',       'Peripheral Owner', 'owner.peripheral@example.com', '0400000004','Wollongong', 'customer', '1989-07-30'),
 (UUID_TO_BIN('55555555-5555-5555-5555-555555555555'), 'alice',      '{bcrypt}$2a$10$customerhashalice','Alice Customer', 'alice@example.com', '0400000005', 'Wollongong','customer', '1995-06-18'),
 (UUID_TO_BIN('66666666-6666-6666-6666-666666666666'), 'bob',        '{bcrypt}$2a$10$customerhashbob',  'Bob Customer', 'bob@example.com', '0400000006', 'Wollongong','customer', '1993-02-10');
+-- Admin User
+INSERT INTO payments (id, user_id, card_number, card_holder_name, expiry_date, cvv) VALUES
+(UUID_TO_BIN('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),UUID_TO_BIN('11111111-1111-1111-1111-111111111111'),'4532758491029384', 'Admin User', '08/2027', '123'),
+-- Gadget Owner
+(UUID_TO_BIN('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'),UUID_TO_BIN('22222222-2222-2222-2222-222222222222'),'5500123412345678', 'Tech Owner', '11/2026', '456'),
+-- Gadget Owner
+(UUID_TO_BIN('cccccccc-cccc-cccc-cccc-cccccccccccc'), UUID_TO_BIN('33333333-3333-3333-3333-333333333333'), '4024007101234567', 'Gadget Owner', '05/2025', '789'),
+-- Peripheral Owner
+(UUID_TO_BIN('dddddddd-dddd-dddd-dddd-dddddddddddd'), UUID_TO_BIN('44444444-4444-4444-4444-444444444444'), '6011111111111117', 'Peripheral Owner', '02/2028', '321'),
+-- Alice Customer
+(UUID_TO_BIN('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'), UUID_TO_BIN('55555555-5555-5555-5555-555555555555'), '372512345678901', 'Alice Customer', '10/2029', '654'),
+-- Bob Customer
+(UUID_TO_BIN('ffffffff-ffff-ffff-ffff-ffffffffffff'), UUID_TO_BIN('66666666-6666-6666-6666-666666666666'), '3530111333300000', 'Bob Customer', '04/2026', '987');
 
 -- Shop Service Database Schema
 CREATE DATABASE IF NOT EXISTS shop_db

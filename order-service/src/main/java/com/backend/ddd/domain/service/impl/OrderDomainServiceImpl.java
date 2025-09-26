@@ -8,12 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class OrderDomainServiceImpl implements OrderDomainService {
 
     @Autowired
     private OrderDomainRepository orderDomainRepository;
+
+    @Override
+    public Order getOrderById(UUID orderId) {
+        return orderDomainRepository.getOrderById(orderId);
+    }
 
     @Override
     public Order saveOrder(Order order) {
@@ -24,4 +30,5 @@ public class OrderDomainServiceImpl implements OrderDomainService {
     public List<OrderItem> saveOrderItems(List<OrderItem> orderItems) {
         return orderDomainRepository.saveOrderItems(orderItems);
     }
+
 }
