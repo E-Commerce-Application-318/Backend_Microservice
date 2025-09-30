@@ -8,7 +8,9 @@ import java.util.UUID;
 
 public interface OrderDomainService {
     Order getOrderById(UUID orderId);
-//    List<Order> getOrdersByUserId(UUID userId);
+    List<Order> getOrdersByUserId(UUID userId);
     Order saveOrder(Order order);
     List<OrderItem> saveOrderItems(List<OrderItem> orderItems);
+    List<OrderItem> getOrderItemsByOrderId(UUID orderId);
+    void processPayment(UUID orderId);
 }

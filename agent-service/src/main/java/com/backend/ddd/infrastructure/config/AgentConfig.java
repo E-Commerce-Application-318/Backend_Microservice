@@ -66,7 +66,7 @@ public class AgentConfig {
 
     @Bean
     ContentRetriever contentRetriever (EmbeddingStore<TextSegment> embeddingStore, EmbeddingModel embeddingModel) {
-        int maxResults = 5;
+        int maxResults = 1;
         double minScore = 0.6;
 
         return EmbeddingStoreContentRetriever.builder()

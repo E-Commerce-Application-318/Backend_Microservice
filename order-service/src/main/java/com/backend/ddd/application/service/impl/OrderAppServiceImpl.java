@@ -3,6 +3,7 @@ package com.backend.ddd.application.service.impl;
 import com.backend.ddd.application.mapper.OrderAppMapper;
 import com.backend.ddd.application.service.OrderAppService;
 import com.backend.ddd.controller.model.dto.OrderResponseDTO;
+import com.backend.ddd.controller.model.dto.PaymentRequestDTO;
 import com.backend.ddd.domain.model.entity.Order;
 import com.backend.ddd.domain.model.entity.OrderItem;
 import com.backend.ddd.domain.model.entity.OrderItemId;
@@ -12,6 +13,7 @@ import com.backend.ddd.infrastructure.persistence.client.CartClient;
 import com.backend.ddd.infrastructure.persistence.client.ProductClient;
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalProduct;
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalUser;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,35 +26,48 @@ import java.util.*;
 public class OrderAppServiceImpl implements OrderAppService {
 
     @Autowired
-    private ProductClient productWebClient;
+    private ProductClient productClient;
 
     @Autowired
-    private CartClient cartWebClient;
+    private CartClient cartClient;
 
     @Autowired
-    private AuthClient authWebClient;
+    private AuthClient authClient;
 
     @Autowired
     private OrderDomainService orderDomainService;
 
     @Autowired
-    private OrderAppMapper orderMapper;
+    private OrderAppMapper orderAppMapper;
 
+    @Override
+    public List<OrderResponseDTO> getAllOrdersByUserId(UUID userId) {
+        List<Order> orders = orderDomainService.getOrdersByUserId(userId);
+        if (orders.isEmpty()) {
+            return null;
+        }
+        return orders.stream()
+                .map(order -> {
+                    List<OrderItem> orderItems = orderDomainService.getOrderItemsByOrderId(order.getId());
+                    return orderAppMapper.OrderAndOrderItemsToOrderResponseDTO(order, orderItems);
+                })
+                .toList();
+    }
 
     @Override
     public OrderResponseDTO createOrder(UUID userId, List<UUID> cartIds) {
         // get all productIds from cartIds
-        Map<UUID, Integer> productIdsAndQuantities = cartWebClient.getProductIdsAndQuantitiesByCartIds(cartIds);
+        Map<UUID, Integer> productIdsAndQuantities = cartClient.getProductIdsAndQuantitiesByCartIds(cartIds);
 
         // get all product details from product-service by productIds
         List<UUID> productIds = productIdsAndQuantities.keySet().stream().toList();
-        List<ExternalProduct> externalProducts = productWebClient.getProductsByProductIds(productIds);
+        List<ExternalProduct> externalProducts = productClient.getProductsByProductIds(productIds);
 
         // check the quantity of the product in cart with the stock number of product in database
         // assume it will have enough stock for al products in the cart
 
         // processing the order -> reduce the stock number of product
-        Boolean result = productWebClient.processOrder(productIdsAndQuantities);
+        Boolean result = productClient.processOrder(productIdsAndQuantities);
         if (!result) {
             throw new RuntimeException("Failed to process the order due to insufficient stock.");
         }
@@ -75,7 +90,7 @@ public class OrderAppServiceImpl implements OrderAppService {
             orderItems.add(orderItem);
         }
 
-        ExternalUser user = authWebClient.getAddressByUserId(userId);
+        ExternalUser user = authClient.getAddressByUserId(userId);
         Order order = new Order()
                 .setId(orderId)
                 .setUserId(userId)
@@ -95,7 +110,7 @@ public class OrderAppServiceImpl implements OrderAppService {
 
         // processing the order -> after confirmation from user -> input correct payment -> change the status into Preparing and Shipping
 
-        return orderMapper.OrderAndOrderItemsToOrderResponseDTO(savedOrder, savedOrderItems);
+        return orderAppMapper.OrderAndOrderItemsToOrderResponseDTO(savedOrder, savedOrderItems);
     }
 
     @Override
@@ -118,9 +133,25 @@ public class OrderAppServiceImpl implements OrderAppService {
         return "Updated successfully";
     }
 
-    public Boolean makePayment(
-            @RequestParam("orderId") UUID orderId
-    ) {
-        return true;
+    @Override
+    @Transactional
+    public String processPayment (UUID orderId, UUID userId, PaymentRequestDTO paymentRequestDTO) {
+        Order order = orderDomainService.getOrderById(orderId);
+        log.info("Order: {}", order);
+        if (order == null || !order.getUserId().equals(userId)) {
+            return "Payment process failed because order with order ID not exist or not belongs to this user Id";
+        }
+        Boolean paymentConfirmation = authClient.paymentOrder(userId, paymentRequestDTO);
+        log.info("Check: {}", paymentConfirmation);
+        if (!paymentConfirmation) {
+            return "Payment process failed!";
+        }
+        try {
+            log.info("Payment confirmation: {}", orderId);
+            orderDomainService.processPayment(orderId);
+            return "Payment process successfully";
+        } catch (Exception err) {
+            return "Payment process failed! Error: " + err;
+        }
     }
 }

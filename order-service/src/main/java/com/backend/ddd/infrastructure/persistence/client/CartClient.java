@@ -1,7 +1,6 @@
 package com.backend.ddd.infrastructure.persistence.client;
 
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalApiResponse;
-import com.backend.ddd.infrastructure.persistence.client.model.ExternalProduct;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
 

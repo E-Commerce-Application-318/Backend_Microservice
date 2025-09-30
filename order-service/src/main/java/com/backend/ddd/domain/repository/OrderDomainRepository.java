@@ -9,6 +9,9 @@ import java.util.UUID;
 public interface OrderDomainRepository {
     Order getOrderById(UUID orderId);
     Order saveOrder(Order order);
+    List<Order> findOrdersByUserId(UUID userId);
     List<OrderItem> saveOrderItems(List<OrderItem> orderItems);
+    List<OrderItem> getOrderItemsByOrderId(UUID orderId);
+    void processPayment(UUID orderId);
 }
 

@@ -18,6 +18,7 @@ public class OrderInfrasRepositoryImpl implements OrderDomainRepository {
 
     @Autowired
     private OrderJPAMapper orderJPAMapper;
+
     @Autowired
     private OrderItemJPAMapper orderItemJPAMapper;
 
@@ -26,10 +27,11 @@ public class OrderInfrasRepositoryImpl implements OrderDomainRepository {
         return orderJPAMapper.findById(orderId).orElse(null);
     }
 
-
+    @Override
     public List<Order> findOrdersByUserId(UUID userId) {
         return orderJPAMapper.findOrdersByUserId(userId);
     }
+
     @Override
     public Order saveOrder(Order order) {
         return orderJPAMapper.save(order);
@@ -38,5 +40,15 @@ public class OrderInfrasRepositoryImpl implements OrderDomainRepository {
     @Override
     public List<OrderItem> saveOrderItems(List<OrderItem> orderItems) {
         return orderItemJPAMapper.saveAll(orderItems);
+    }
+
+    @Override
+    public List<OrderItem> getOrderItemsByOrderId(UUID orderId) {
+        return orderItemJPAMapper.findAllByOrderId(orderId);
+    }
+
+    @Override
+    public void processPayment(UUID orderId) {
+        orderJPAMapper.processPayment(orderId);
     }
 }

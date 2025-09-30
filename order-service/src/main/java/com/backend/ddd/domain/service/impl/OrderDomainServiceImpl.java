@@ -20,6 +20,10 @@ public class OrderDomainServiceImpl implements OrderDomainService {
     public Order getOrderById(UUID orderId) {
         return orderDomainRepository.getOrderById(orderId);
     }
+    @Override
+    public List<Order> getOrdersByUserId(UUID userId) {
+        return orderDomainRepository.findOrdersByUserId(userId);
+    }
 
     @Override
     public Order saveOrder(Order order) {
@@ -29,6 +33,16 @@ public class OrderDomainServiceImpl implements OrderDomainService {
     @Override
     public List<OrderItem> saveOrderItems(List<OrderItem> orderItems) {
         return orderDomainRepository.saveOrderItems(orderItems);
+    }
+
+    @Override
+    public List<OrderItem> getOrderItemsByOrderId(UUID orderId) {
+        return orderDomainRepository.getOrderItemsByOrderId(orderId);
+    }
+
+    @Override
+    public void processPayment(UUID orderId) {
+        orderDomainRepository.processPayment(orderId);
     }
 
 }

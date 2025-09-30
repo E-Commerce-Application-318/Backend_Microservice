@@ -16,3 +16,13 @@ logging:
   level:
     dev:
       langchain4j: DEBUG
+
+services:
+  cart:
+    base-url: http://localhost:8085/cart
+  product:
+    base-url: http://localhost:8082/product
+  auth:
+    base-url: http://localhost:8081/auth
+  order:
+    base-url: http://localhost:8084/order
