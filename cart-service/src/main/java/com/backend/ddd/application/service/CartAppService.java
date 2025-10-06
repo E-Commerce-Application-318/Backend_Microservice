@@ -11,5 +11,6 @@ public interface CartAppService {
     Map<UUID, Integer> getProductIdsAndQuantitiesByCartIds(List<UUID> cartIds);
     Boolean addProductToCart(UUID userId, UUID productId, Integer quantity);
     Boolean updateCart(UUID userId, UUID productId, Integer quantity);
+    Boolean removeCartsByCartIds(List<UUID> cartIds);
     Boolean removeProductFromCart(UUID userId, UUID productId);
 }

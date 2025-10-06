@@ -41,7 +41,6 @@ public class OrderController {
             @PathVariable("userId") UUID userId,
             @RequestBody List<UUID> cartIds
     ) {
-        log.info("Check create order for userId: {}, cartIds: {}", userId, cartIds);
         try {
             OrderResponseDTO orderResponseDTO = orderAppService.createOrder(userId, cartIds);
             if (orderResponseDTO != null) {

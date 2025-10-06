@@ -12,6 +12,16 @@ spring:
       ddl-auto: update # None change
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  cloud:
+    stream:
+      bindings:
+        receivedOrderCreatingEvent-in-0:
+          destination: order-created
+      kafka:
+        binder:
+          brokers: localhost:9092
+    function:
+      definition: receivedOrderCreatingEvent
 
 services:
   product:

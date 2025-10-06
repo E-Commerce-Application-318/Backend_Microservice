@@ -26,3 +26,11 @@ MYSQL_DATABSE: order_db
 MYSQL_ROOT: root
 MYSQL_ROOT_PASSWORD: root1234
 ```
+
+Run Kafka:
+```bash
+C:\kafka\bin\windows\zookeeper-server-start.bat C:\kafka\config\zookeeper.properties
+```
+```bash
+C:\kafka\bin\windows\kafka-server-start.bat C:\kafka\config\server.properties
+```

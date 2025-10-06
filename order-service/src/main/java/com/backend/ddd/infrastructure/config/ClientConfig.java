@@ -3,6 +3,7 @@ package com.backend.ddd.infrastructure.config;
 import com.backend.ddd.infrastructure.persistence.client.AuthClient;
 import com.backend.ddd.infrastructure.persistence.client.CartClient;
 import com.backend.ddd.infrastructure.persistence.client.ProductClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,7 @@ public class ClientConfig {
     }
 
     @Bean
-    public CartClient cartClient(WebClient cartWebClient) {
+    public CartClient cartClient(@Qualifier("cartWebClient") WebClient cartWebClient) {
         return new CartClient(cartWebClient);
     }
 
@@ -26,7 +27,7 @@ public class ClientConfig {
     }
 
     @Bean
-    public ProductClient productClient(WebClient productWebClient) {
+    public ProductClient productClient(@Qualifier("productWebClient") WebClient productWebClient) {
         return new ProductClient(productWebClient);
     }
 
@@ -36,7 +37,7 @@ public class ClientConfig {
     }
 
     @Bean
-    AuthClient authClient(WebClient authWebClient) {
+    AuthClient authClient(@Qualifier("authWebClient") WebClient authWebClient) {
         return new AuthClient(authWebClient);
     }
 }

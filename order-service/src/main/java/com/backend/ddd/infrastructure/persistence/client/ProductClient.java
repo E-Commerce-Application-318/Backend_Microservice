@@ -16,6 +16,11 @@ public class ProductClient {
         this.productWebClient = productWebClient;
     }
 
+    /**
+     * get product details by list of productIds
+     * @param productIds
+     * @return
+     */
     public List<ExternalProduct> getProductsByProductIds(List<UUID> productIds) {
         ExternalApiResponse<List<ExternalProduct>> externalApiResponse = productWebClient.post()
                 .uri("/product-detail-list")
@@ -26,13 +31,13 @@ public class ProductClient {
         return externalApiResponse != null ? externalApiResponse.getData() : List.of();
     }
 
-    public Boolean processOrder(Map<UUID, Integer> productIdsAndQuantities) {
-        ExternalApiResponse<Boolean> externalApiResponse = productWebClient.post()
-                .uri("/process-order")
-                .bodyValue(productIdsAndQuantities)
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<Boolean>>() {})
-                .block();
-        return externalApiResponse != null && Boolean.TRUE.equals(externalApiResponse.getData());
-    }
+//    public Boolean processOrder(Map<UUID, Integer> productIdsAndQuantities) {
+//        ExternalApiResponse<Boolean> externalApiResponse = productWebClient.post()
+//                .uri("/process-order")
+//                .bodyValue(productIdsAndQuantities)
+//                .retrieve()
+//                .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<Boolean>>() {})
+//                .block();
+//        return externalApiResponse != null && Boolean.TRUE.equals(externalApiResponse.getData());
+//    }
 }

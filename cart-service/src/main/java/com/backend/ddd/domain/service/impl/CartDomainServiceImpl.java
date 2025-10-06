@@ -35,6 +35,10 @@ public class CartDomainServiceImpl implements CartDomainService {
     }
 
     @Override
+    public void removeCartsByCartIds(List<UUID> cartIds) {
+        cartDomainRepository.removeCartsByCartIds(cartIds);
+    }
+    @Override
     public void removeCartByUserIdAndProductId(UUID userId, UUID productId) {
         cartDomainRepository.removeCartByUserIdAndProductId(userId, productId);
     }

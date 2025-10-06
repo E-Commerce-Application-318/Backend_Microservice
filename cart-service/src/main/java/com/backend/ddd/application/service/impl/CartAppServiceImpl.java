@@ -5,7 +5,6 @@ import com.backend.ddd.application.service.CartAppService;
 import com.backend.ddd.controller.model.dto.CartResponseDTO;
 import com.backend.ddd.domain.model.entity.Cart;
 import com.backend.ddd.domain.service.CartDomainService;
-import com.backend.ddd.infrastructure.persistence.client.ShopClient;
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalProduct;
 import com.backend.ddd.infrastructure.persistence.client.ProductClient;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +25,6 @@ public class CartAppServiceImpl implements CartAppService {
 
     @Autowired
     private ProductClient productClient;
-
-    @Autowired
-    private ShopClient shopClient;
 
     private static final CartMapper cartMapper = new CartMapper();
 
@@ -75,6 +71,15 @@ public class CartAppServiceImpl implements CartAppService {
         }
     }
 
+    @Override
+    public Boolean removeCartsByCartIds(List<UUID> cartIds) {
+        try {
+            cartDomainService.removeCartsByCartIds(cartIds);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
     public Boolean removeProductFromCart(UUID userId, UUID productId) {
         try {
             cartDomainService.removeCartByUserIdAndProductId(userId, productId);

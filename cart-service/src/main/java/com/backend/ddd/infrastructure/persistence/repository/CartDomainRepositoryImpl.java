@@ -34,6 +34,10 @@ public class CartDomainRepositoryImpl implements CartDomainRepository {
     }
 
     @Override
+    public void removeCartsByCartIds(List<UUID> cartIds) {
+        cartJPAMapper.deleteAllById(cartIds);
+    }
+    @Override
     public void removeCartByUserIdAndProductId(UUID userId, UUID productId) {
         cartJPAMapper.deleteByUserIdAndProductId(userId, productId);
     }

@@ -12,6 +12,16 @@ spring:
       ddl-auto: update # None change
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  cloud:
+    stream:
+      bindings:
+        orderCreatedChannel:
+          destination: order-created
+        orderCancelledChannel:
+          destination: order-cancelled
+      kafka:
+        binder:
+          brokers: localhost:9092
 
 services:
   cart:

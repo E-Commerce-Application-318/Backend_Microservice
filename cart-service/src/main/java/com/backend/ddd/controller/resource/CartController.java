@@ -66,6 +66,16 @@ public class CartController {
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to update product"));
     }
 
+    @DeleteMapping("/remove-carts")
+    public ResponseEntity<ApiResponseDTO<Boolean>> removeCartsByCartIds(
+            @RequestBody List<UUID> cartIds
+    ) {
+        if (cartAppService.removeCartsByCartIds(cartIds)) {
+            return ResponseEntity.ok().body(ApiResponseDTO.success("Removed carts successfully", true));
+        }
+        return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to remove carts"));
+    }
+
     @DeleteMapping("/{userId}/remove-product")
     public ResponseEntity<ApiResponseDTO<Boolean>> removeProductFromCart(
             @PathVariable("userId") UUID userId,
@@ -73,7 +83,7 @@ public class CartController {
     ) {
         if (cartAppService.removeProductFromCart(userId, productId)) {
             return ResponseEntity.ok().body(ApiResponseDTO.success("Removed product successfully", true));
-}
+        }
         return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to remove product"));
     }
 }

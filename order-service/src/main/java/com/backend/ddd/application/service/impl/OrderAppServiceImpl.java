@@ -13,16 +13,19 @@ import com.backend.ddd.infrastructure.persistence.client.CartClient;
 import com.backend.ddd.infrastructure.persistence.client.ProductClient;
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalProduct;
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalUser;
+
+import com.backend.shared.domain.order_product.OrderCreatedEvent;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
 
 @Slf4j
 @Service
+//@RequiredArgsConstructor
 public class OrderAppServiceImpl implements OrderAppService {
 
     @Autowired
@@ -40,6 +43,9 @@ public class OrderAppServiceImpl implements OrderAppService {
     @Autowired
     private OrderAppMapper orderAppMapper;
 
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
     @Override
     public List<OrderResponseDTO> getAllOrdersByUserId(UUID userId) {
         List<Order> orders = orderDomainService.getOrdersByUserId(userId);
@@ -55,6 +61,7 @@ public class OrderAppServiceImpl implements OrderAppService {
     }
 
     @Override
+    @Transactional
     public OrderResponseDTO createOrder(UUID userId, List<UUID> cartIds) {
         // get all productIds from cartIds
         Map<UUID, Integer> productIdsAndQuantities = cartClient.getProductIdsAndQuantitiesByCartIds(cartIds);
@@ -62,15 +69,6 @@ public class OrderAppServiceImpl implements OrderAppService {
         // get all product details from product-service by productIds
         List<UUID> productIds = productIdsAndQuantities.keySet().stream().toList();
         List<ExternalProduct> externalProducts = productClient.getProductsByProductIds(productIds);
-
-        // check the quantity of the product in cart with the stock number of product in database
-        // assume it will have enough stock for al products in the cart
-
-        // processing the order -> reduce the stock number of product
-        Boolean result = productClient.processOrder(productIdsAndQuantities);
-        if (!result) {
-            throw new RuntimeException("Failed to process the order due to insufficient stock.");
-        }
 
         // processing the order -> create the order with the all information including, all products
         // status: pending -> need payment
@@ -104,12 +102,20 @@ public class OrderAppServiceImpl implements OrderAppService {
         Order savedOrder = orderDomainService.saveOrder(order);
         List<OrderItem> savedOrderItems = orderDomainService.saveOrderItems(orderItems);
 
+
         if (savedOrder == null || savedOrderItems.size() != orderItems.size() || savedOrderItems.isEmpty()) {
             throw new RuntimeException("Failed to create the order.");
         }
 
-        // processing the order -> after confirmation from user -> input correct payment -> change the status into Preparing and Shipping
+        // publish the event when the order and orderItems were saved -> use application approach to publish the event
+        // consumer:
+        // - product to reduce the stock number
+        // - cart to remove the cart by cartIds
+        // - payment will process to reduce the amount of money in cart of customer
+        OrderCreatedEvent orderCreatedEvent = orderAppMapper.createOrderEvent(savedOrder, savedOrderItems, cartIds);
+        applicationEventPublisher.publishEvent(orderCreatedEvent);
 
+        // processing the order -> after confirmation from user -> input correct payment -> change the status into Preparing and Shipping
         return orderAppMapper.OrderAndOrderItemsToOrderResponseDTO(savedOrder, savedOrderItems);
     }
 
@@ -154,4 +160,5 @@ public class OrderAppServiceImpl implements OrderAppService {
             return "Payment process failed! Error: " + err;
         }
     }
+
 }

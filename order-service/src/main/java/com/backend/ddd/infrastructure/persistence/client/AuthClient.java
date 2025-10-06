@@ -15,6 +15,11 @@ public class AuthClient {
         this.authWebClient = authWebClient;
     }
 
+    /**
+     * get information of user to create order (including address)
+     * @param userID
+     * @return
+     */
     public ExternalUser getAddressByUserId(UUID userID) {
         ExternalApiResponse<ExternalUser> externalApiResponse = authWebClient.get()
                 .uri("/{userId}/get-address", userID)
@@ -24,6 +29,12 @@ public class AuthClient {
         return externalApiResponse != null ? externalApiResponse.getData() : null;
     }
 
+    /**
+     * verity the correctness of payment information and implement the payment
+     * @param userId
+     * @param paymentRequestDTO
+     * @return
+     */
     public Boolean paymentOrder(UUID userId, PaymentRequestDTO paymentRequestDTO) {
         ExternalApiResponse<Boolean> externalApiResponse = authWebClient.post()
                 .uri("/{userId}/confirm_payment", userId)
