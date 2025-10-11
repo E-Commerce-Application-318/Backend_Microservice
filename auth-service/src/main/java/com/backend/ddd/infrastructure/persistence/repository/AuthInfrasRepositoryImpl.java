@@ -56,4 +56,8 @@ public class AuthInfrasRepositoryImpl implements AuthDomainRepository {
     public Payment getPaymentByUserId(UUID userId) {
         return paymentJPAMapper.findByUserId(userId);
     }
+    @Override
+    public Payment savePayment(Payment payment) {
+        return paymentJPAMapper.save(payment);
+    }
 }

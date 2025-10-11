@@ -15,13 +15,23 @@ spring:
   cloud:
     stream:
       bindings:
+        # publisher
         orderCreatedChannel:
           destination: order-created
-        orderCancelledChannel:
-          destination: order-cancelled
+        orderCancelledChannelRestock:
+          destination: order-cancelled-restock
+        orderCancelledEventRefund:
+          destination: order-cancelled-refund
+        paymentProcessChannel:
+          destination: order-payment-processed
+        # consumer
+        receivedPaymentStatusEvent-in-0:
+          destination: order-status-updated
       kafka:
         binder:
           brokers: localhost:9092
+    function:
+      definition: receivedPaymentStatusEvent
 
 services:
   cart:

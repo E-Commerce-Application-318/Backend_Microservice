@@ -7,4 +7,7 @@ import java.util.UUID;
 
 public interface AgentAppService {
     List<ExternalOrderResponse> getAllOrdersByUserId(UUID userId);
+    ExternalOrderResponse createOrder(UUID userId, List<UUID> cartIds);
+    String updateOrder(UUID orderId, String address, String phoneNumber);
+    String cancelOrder(UUID orderId);
 }

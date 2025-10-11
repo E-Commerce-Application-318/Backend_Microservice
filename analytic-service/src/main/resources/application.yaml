@@ -1,0 +1,30 @@
+server:
+  port: 8087
+spring:
+  cloud:
+    function:
+      definition: receivedOrderCreatedEvent
+    stream:
+      bindings:
+        # consumer
+        receivedOrderCreatedEvent-in-0:
+          destination: order-created
+          contentType: application/json
+      kafka:
+        streams:
+          binder:
+            brokers: localhost:9092
+            configuration:
+              application.id: analytics-service
+              commit.interval.ms: 500
+              # Default SerDes
+              default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+              default.value.serde: org.springframework.kafka.support.serializer.JsonSerde
+              # JsonSerde
+              spring.json.value.default.type: com.backend.shared.domain.order_product.OrderCreatedEvent
+              spring.json.trusted.packages: "*"
+
+windowstore:
+  name: product-windowstore
+  size:
+    ms: 30000

@@ -4,11 +4,12 @@ import com.backend.ddd.application.model.AuthResponse;
 import com.backend.ddd.application.model.LoginRequest;
 import com.backend.ddd.application.model.RegisterRequest;
 import com.backend.ddd.application.service.AuthAppService;
-import com.backend.ddd.controller.model.dto.PaymentRequestDTO;
 import com.backend.ddd.controller.model.dto.UserDetailResponseDTO;
 import com.backend.ddd.domain.model.entity.Payment;
 import com.backend.ddd.domain.model.entity.User;
 import com.backend.ddd.domain.service.AuthDomainService;
+import com.backend.shared.domain.order_product.PaymentDetail;
+import com.backend.shared.domain.order_product.PaymentStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,10 +24,13 @@ import java.util.UUID;
 public class AuthAppServiceImpl implements AuthAppService {
 
     @Autowired
-    AuthDomainService authDomainService;
+    private AuthDomainService authDomainService;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthEventPublisher authEventPublisher;
 
     @Override
     public AuthResponse login(LoginRequest loginRequest) {
@@ -96,20 +100,48 @@ public class AuthAppServiceImpl implements AuthAppService {
         if (user.isEmpty()) {
             return null;
         }
-        return new UserDetailResponseDTO()
-                .setAddress(user.get().getAddress())
-                .setPhoneNumber(user.get().getPhoneNumber());
+        return new UserDetailResponseDTO(
+                user.get().getName(),
+                user.get().getAddress(),
+                user.get().getPhoneNumber()
+        );
     }
 
     @Override
-    public Boolean processPayment(UUID userId, PaymentRequestDTO paymentRequestDTO) {
+    public String processPayment(PaymentDetail paymentDetail) {
+        Payment payment = authDomainService.getPaymentByUserId(paymentDetail.getUserId());
+
+        if (payment.getCardNumber().equals(paymentDetail.getCardNumber())
+                & payment.getCardHolderName().equals(paymentDetail.getCardHolderName())
+                & payment.getExpiryDate().equals(paymentDetail.getExpiryDate())
+                & payment.getCvv().equals(paymentDetail.getCvv())) {
+            if (payment.getBalance() >= paymentDetail.getTotalAmount()) {
+                payment.setBalance(payment.getBalance() - paymentDetail.getTotalAmount());
+                if (authDomainService.savePayment(payment) != null) {
+                    // publish event to update the status of order
+                    authEventPublisher.handleStatusUpdatedEvent(new PaymentStatus(paymentDetail.getOrderId(), "SUCCESS"));
+                    return "Payment successful";
+                } else {
+                    authEventPublisher.handleStatusUpdatedEvent(new PaymentStatus(paymentDetail.getOrderId(), "Failed. Error when update the balance"));
+                    return "Payment failed because cannot update balance";
+                }
+            } else {
+                authEventPublisher.handleStatusUpdatedEvent(new PaymentStatus(paymentDetail.getOrderId(), "Failed. Not enough balance"));
+                return "Not enough balance in this card !!!";
+            }
+        } else {
+            authEventPublisher.handleStatusUpdatedEvent(new PaymentStatus(paymentDetail.getOrderId(), "Failed. Payment detail is incorrect"));
+            return "Payment detail is incorrect";
+        }
+    }
+
+    public String refundPayment(UUID userId, Double totalAmount) {
         Payment payment = authDomainService.getPaymentByUserId(userId);
-        log.info("Payment " + payment);
-        log.info("Payment request " + paymentRequestDTO);
-        // check payment of user saved in database with payment from request
-        return (payment.getCardNumber().equals(paymentRequestDTO.getCardNumber())
-        & payment.getCardHolderName().equals(paymentRequestDTO.getCardHolderName())
-        & payment.getExpiryDate().equals(paymentRequestDTO.getExpiryDate())
-        & payment.getCvv().equals(paymentRequestDTO.getCvv()));
+        payment.setBalance(payment.getBalance() + totalAmount);
+        if (authDomainService.savePayment(payment) != null) {
+            return "Refund successful";
+        } else {
+            return "Refund failed because cannot update balance";
+        }
     }
 }

@@ -16,4 +16,12 @@ public interface OrderJPAMapper extends JpaRepository<Order, UUID> {
     @Modifying
     @Query("update Order set status = 'PAID' where id = :orderId")
     void processPayment(@Param("orderId") UUID orderId);
+
+    @Modifying
+    @Query("update Order set status = 'CANCELED' where id = :orderId")
+    void cancelOrder(@Param("orderId") UUID orderId);
+    
+    @Modifying
+    @Query("update Order set status = :status where id = :orderId")
+    void updateOrderStatus(@Param("orderId") UUID orderId, @Param("status") String status);
 }

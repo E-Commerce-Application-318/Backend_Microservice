@@ -3,6 +3,7 @@ package com.backend.ddd.controller.resource;
 import com.backend.ddd.application.service.CartAppService;
 import com.backend.ddd.controller.model.dto.ApiResponseDTO;
 import com.backend.ddd.controller.model.dto.CartRequestDTO;
+import com.backend.ddd.controller.model.dto.CartBasketResponseDTO;
 import com.backend.ddd.controller.model.dto.CartResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,10 @@ public class CartController {
     private CartAppService cartAppService;
 
     @GetMapping("/{userId}/get-all-items")
-    public ResponseEntity<ApiResponseDTO<CartResponseDTO>> getAllCartItemsByUserId(
+    public ResponseEntity<ApiResponseDTO<CartBasketResponseDTO>> getAllCartItemsByUserId(
             @PathVariable("userId") UUID userId
     ) {
-        CartResponseDTO cartResponseDTO = cartAppService.getAllProductsByUserId(userId);
+        CartBasketResponseDTO cartResponseDTO = cartAppService.getAllProductsByUserId(userId);
 
         if  (cartResponseDTO == null) {
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Not found any products in cart"));
@@ -44,24 +45,36 @@ public class CartController {
         return ResponseEntity.ok().body(ApiResponseDTO.success("Found products", productIdsAndQuantity));
     }
 
+    @PostMapping("/get-carts-by-cart-ids")
+    public ResponseEntity<ApiResponseDTO<List<CartResponseDTO>>> getCartsByCartIds(
+            @RequestBody List<UUID> cartIds
+    ) {
+        List<CartResponseDTO> cartResponseDTOs = cartAppService.getCartsByCartIds(cartIds);
+        if (cartResponseDTOs == null || cartResponseDTOs.isEmpty()) {
+            return ResponseEntity.badRequest().body(ApiResponseDTO.error("Not found any products in cart"));
+        }
+        return ResponseEntity.ok().body(ApiResponseDTO.success("Found products", cartResponseDTOs));
+    }
+
     @PostMapping("/{userId}/add-item")
-    public ResponseEntity<ApiResponseDTO<Boolean>> addProductToCart(
+    public ResponseEntity<ApiResponseDTO<CartResponseDTO>> addProductToCart(
             @PathVariable("userId") UUID userId,
             @RequestBody CartRequestDTO cartRequestDTO
             ) {
-        Boolean success = cartAppService.addProductToCart(userId, cartRequestDTO.getProductId(), cartRequestDTO.getQuantity());
-        if (!success)
+        CartResponseDTO cartResponseDTO = cartAppService.addProductToCart(userId, cartRequestDTO.getProductId(), cartRequestDTO.getQuantity());
+        if (cartResponseDTO == null)
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to add product"));
-        return ResponseEntity.ok().body(ApiResponseDTO.success("Add product successfully", true));
+        return ResponseEntity.ok().body(ApiResponseDTO.success("Add product successfully", cartResponseDTO));
     }
 
     @PutMapping("/{userId}/update-product")
-    public ResponseEntity<ApiResponseDTO<Boolean>> updateCartItem(
+    public ResponseEntity<ApiResponseDTO<CartResponseDTO>> updateCartItem(
         @PathVariable("userId") UUID userId,
         @RequestBody CartRequestDTO cartRequestDTO
     ) {
-        if (cartAppService.updateCart(userId, cartRequestDTO.getProductId(), cartRequestDTO.getQuantity()))
-            return ResponseEntity.ok().body(ApiResponseDTO.success("Updated product successfully", true));
+        CartResponseDTO cartResponseDTO = cartAppService.updateCart(userId, cartRequestDTO.getProductId(), cartRequestDTO.getQuantity());
+        if (cartResponseDTO != null)
+            return ResponseEntity.ok().body(ApiResponseDTO.success("Updated product successfully", cartResponseDTO));
         else
             return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to update product"));
     }

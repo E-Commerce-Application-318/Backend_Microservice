@@ -72,8 +72,18 @@ public class OrderController {
     ) {
         String paymentResult = orderAppService.processPayment(orderId, userId, orderUpdateRequestDTO);
         if (paymentResult.equals("Payment process successfully"))
-            return ResponseEntity.ok().body(ApiResponseDTO.success("Payment process successfully", paymentResult));
+            return ResponseEntity.ok().body(ApiResponseDTO.success("Payment is independently processing, please wait a moment and check the order status later", null));
 
         return ResponseEntity.badRequest().body(ApiResponseDTO.error(paymentResult));
+    }
+
+    @PutMapping("/cancel-order/{orderId}")
+    public ResponseEntity<ApiResponseDTO<String>> cancelOrder(
+            @PathVariable("orderId") UUID orderId
+    ) {
+        if (!orderAppService.cancelOrder(orderId)) {
+            return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to delete order"));
+        }
+        return ResponseEntity.ok(ApiResponseDTO.success("Deleted order successfully", null));
     }
 }

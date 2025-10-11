@@ -1,7 +1,6 @@
 package com.backend.ddd.controller.model.dto;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

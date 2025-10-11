@@ -21,6 +21,12 @@ public class OrderItem {
     @EmbeddedId
     private OrderItemId orderItemId;
 
+    @Column(name = "product_name")
+    private String productName;
+
+    @Column(name = "brand")
+    private String brand;
+
     @Column(name = "quantity")
     private Integer quantity;
 

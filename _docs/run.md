@@ -1,7 +1,9 @@
 ## How to run
 
 Open environment -> Run
-> docker-compose -f .csit318_environment/docker-compose-dev.yml up
+```bash
+docker-compose -f .csit318_environment/docker-compose-dev.yml up
+```
 
 The above cmd will auto create db with these metrics: \
 ```bash

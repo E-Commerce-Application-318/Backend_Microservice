@@ -53,4 +53,9 @@ public class AuthDomainServiceImpl implements AuthDomainService {
     public Payment getPaymentByUserId(UUID userId) {
         return authDomainRepository.getPaymentByUserId(userId);
     }
+
+    @Override
+    public Payment savePayment(Payment payment) {
+        return authDomainRepository.savePayment(payment);
+    }
 }

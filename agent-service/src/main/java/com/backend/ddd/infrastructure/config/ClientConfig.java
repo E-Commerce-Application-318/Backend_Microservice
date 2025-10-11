@@ -1,6 +1,7 @@
 package com.backend.ddd.infrastructure.config;
 
 import com.backend.ddd.infrastructure.persistence.client.OrderClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,12 +12,12 @@ public class ClientConfig {
 
     // Config the URL for all other services
     @Bean
-    public WebClient orderWebClient(@Value("${services.order.base-url") String baseUrl) {
+    public WebClient orderWebClient(@Value("${services.order.base-url}") String baseUrl) {
         return WebClient.builder().baseUrl(baseUrl).build();
     }
 
     @Bean
-    public WebClient productWebClient(@Value("${services.product.base-url") String baseUrl) {
+    public WebClient productWebClient(@Value("${services.product.base-url}") String baseUrl) {
         return WebClient.builder().baseUrl(baseUrl).build();
     }
 
@@ -26,9 +27,8 @@ public class ClientConfig {
     }
 
     //Config the Client to get the base-url
-
     @Bean
-    public OrderClient orderClient(WebClient orderWebClient) {
+    public OrderClient orderClient(@Qualifier("orderWebClient") WebClient orderWebClient) {
         return new OrderClient(orderWebClient);
     }
 

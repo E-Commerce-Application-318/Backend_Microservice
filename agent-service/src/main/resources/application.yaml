@@ -4,13 +4,15 @@ server:
 langchain4j:
   google-ai-gemini:
     chat-model:
-      api-key: AIzaSyCUc5hh0ul-v9mZiiq1gxrdsfwQ6HlIJsk
-      model-name: gemini-2.0-flash-lite
+      api-key: AIzaSyBB184eqOeredUZ425_SED4VllsFOb0aFw
+      model-name: gemini-2.0-flash
       strict-tools: true
       temperature: 0.0
       timeout: PT60S
       log-requests: false
       log-responses: false
+#      max-retries: 3
+#      retry-delay: PT5S
 
 logging:
   level:

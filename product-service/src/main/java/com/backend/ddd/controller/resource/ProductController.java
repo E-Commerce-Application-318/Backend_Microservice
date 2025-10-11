@@ -107,10 +107,10 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/cancel-order")
-    public ResponseEntity<ApiResponseDTO<Boolean>> cancelOrder (
-            @RequestBody Map<UUID, Integer> productIdsAndQuantities
-    ) {
+//    @GetMapping("/cancel-order")
+//    public ResponseEntity<ApiResponseDTO<Boolean>> cancelOrder (
+//            @RequestBody Map<UUID, Integer> productIdsAndQuantities
+//    ) {
 //        try {
 //            boolean result = productAppService.updateProductsProcessOrder(productIdsAndQuantities);
 //            if (result)
@@ -120,6 +120,6 @@ public class ProductController {
 //        } catch (Exception err) {
 //            return ResponseEntity.badRequest().body(ApiResponseDTO.error("Failed to process order: " + err));
 //        }
-        return null;
-    }
+//        return null;
+//    }
 }

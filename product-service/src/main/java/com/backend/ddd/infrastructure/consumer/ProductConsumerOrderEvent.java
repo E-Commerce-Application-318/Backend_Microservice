@@ -1,7 +1,7 @@
 package com.backend.ddd.infrastructure.consumer;
 
 import com.backend.ddd.application.service.ProductAppService;
-import com.backend.shared.domain.order_product.OrderCancelledEvent;
+import com.backend.shared.domain.order_product.OrderCancelledEventRestock;
 import com.backend.shared.domain.order_product.OrderCreatedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +15,13 @@ import java.util.function.Consumer;
 
 @Slf4j
 @Configuration
-public class OrderHandledEvent {
+public class ProductConsumerOrderEvent {
 
     @Autowired
     private ProductAppService productAppService;
 
     @Bean
-    public Consumer<OrderCreatedEvent> receivedOrderCreatingEvent () {
+    public Consumer<OrderCreatedEvent> receivedOrderCreatedEvent () {
         return event -> {
             Map<UUID, Integer> productIdsAndQuantities = new HashMap<>();
             event.getOrderItemEvents().forEach(orderItemEvent -> {
@@ -40,15 +40,10 @@ public class OrderHandledEvent {
     }
 
     @Bean
-    public Consumer<OrderCancelledEvent> receivedOrderCancellingEvent () {
+    public Consumer<OrderCancelledEventRestock> receivedOrderCancelledEventRestock () {
         return event -> {
-            Map<UUID, Integer> productIdsAndQuantities = new HashMap<>();
-            event.getOrderItemEvents().forEach(orderItemEvent -> {
-                // use minus quantity to add back the stock
-                productIdsAndQuantities.put(orderItemEvent.getProductId(), -orderItemEvent.getQuantity());
-            });
             try {
-                if (productAppService.updateProductsProcessOrder(productIdsAndQuantities))
+                if (productAppService.updateProductsProcessOrder(event.getProductIdsAndQuantities()))
                     log.info("Product Updated Successfully");
                 else {
                     log.info("Product Updated Failed");

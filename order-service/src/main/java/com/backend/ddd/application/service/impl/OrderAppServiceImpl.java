@@ -10,9 +10,8 @@ import com.backend.ddd.domain.model.entity.OrderItemId;
 import com.backend.ddd.domain.service.OrderDomainService;
 import com.backend.ddd.infrastructure.persistence.client.AuthClient;
 import com.backend.ddd.infrastructure.persistence.client.CartClient;
-import com.backend.ddd.infrastructure.persistence.client.ProductClient;
-import com.backend.ddd.infrastructure.persistence.client.model.ExternalProduct;
-import com.backend.ddd.infrastructure.persistence.client.model.ExternalUser;
+import com.backend.ddd.infrastructure.persistence.client.model.ExternalCartResponse;
+import com.backend.ddd.infrastructure.persistence.client.model.ExternalUserResponse;
 
 import com.backend.shared.domain.order_product.OrderCreatedEvent;
 import jakarta.transaction.Transactional;
@@ -22,14 +21,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 //@RequiredArgsConstructor
 public class OrderAppServiceImpl implements OrderAppService {
-
-    @Autowired
-    private ProductClient productClient;
 
     @Autowired
     private CartClient cartClient;
@@ -64,36 +61,38 @@ public class OrderAppServiceImpl implements OrderAppService {
     @Transactional
     public OrderResponseDTO createOrder(UUID userId, List<UUID> cartIds) {
         // get all productIds from cartIds
-        Map<UUID, Integer> productIdsAndQuantities = cartClient.getProductIdsAndQuantitiesByCartIds(cartIds);
-
-        // get all product details from product-service by productIds
-        List<UUID> productIds = productIdsAndQuantities.keySet().stream().toList();
-        List<ExternalProduct> externalProducts = productClient.getProductsByProductIds(productIds);
+        List<ExternalCartResponse> externalCarts = cartClient.getCartsByCartIds(cartIds);
 
         // processing the order -> create the order with the all information including, all products
         // status: pending -> need payment
 
         UUID orderId = UUID.randomUUID(); // generate orderId first to create OrderItems with orderId
-        Double totalAmount = 0.0; // calculate the total amount of the order
-        List<OrderItem> orderItems = new ArrayList<>();
 
-        for (ExternalProduct product : externalProducts) {
-            Double totalProductPrice = product.getPrice() * productIdsAndQuantities.get(product.getId());
-            totalAmount += totalProductPrice;
-            OrderItem orderItem = new OrderItem()
-                    .setOrderItemId(new OrderItemId(orderId, product.getId()))
-                    .setQuantity(productIdsAndQuantities.get(product.getId()))
-                    .setUnitPrice(product.getPrice())
-                    .setTotalPrice(totalProductPrice);
-            orderItems.add(orderItem);
-        }
+        // convert all carts to orderItems (create a list
+        List<OrderItem> orderItems = externalCarts.stream()
+            .map(cart -> new OrderItem(
+                    new OrderItemId(orderId, cart.getProductId()),
+                    cart.getProductName(),
+                    cart.getBrand(),
+                    cart.getQuantity(),
+                    cart.getPrice(),
+                    cart.getPrice() * cart.getQuantity()))
+            .collect(Collectors.toList());
 
-        ExternalUser user = authClient.getAddressByUserId(userId);
+        // calculate the total amount of all item
+        Double totalAmount = orderItems.stream()
+                .mapToDouble(OrderItem::getTotalPrice)
+                .sum();
+
+
+        ExternalUserResponse user = authClient.getAddressByUserId(userId);
+        log.info("CHECK USER: {}", user);
         Order order = new Order()
                 .setId(orderId)
                 .setUserId(userId)
                 .setTotalAmount(totalAmount)
                 .setStatus("Payment Required")
+                .setUserFullName(user.getName())
                 .setShippingAddress(user.getAddress())
                 .setPhoneNumber(user.getPhoneNumber())
                 .setCreatedAt(new Date());
@@ -112,7 +111,7 @@ public class OrderAppServiceImpl implements OrderAppService {
         // - product to reduce the stock number
         // - cart to remove the cart by cartIds
         // - payment will process to reduce the amount of money in cart of customer
-        OrderCreatedEvent orderCreatedEvent = orderAppMapper.createOrderEvent(savedOrder, savedOrderItems, cartIds);
+        OrderCreatedEvent orderCreatedEvent = orderAppMapper.createOrderCreatedEvent(savedOrder, savedOrderItems, cartIds);
         applicationEventPublisher.publishEvent(orderCreatedEvent);
 
         // processing the order -> after confirmation from user -> input correct payment -> change the status into Preparing and Shipping
@@ -142,23 +141,41 @@ public class OrderAppServiceImpl implements OrderAppService {
     @Override
     @Transactional
     public String processPayment (UUID orderId, UUID userId, PaymentRequestDTO paymentRequestDTO) {
-        Order order = orderDomainService.getOrderById(orderId);
-        log.info("Order: {}", order);
-        if (order == null || !order.getUserId().equals(userId)) {
-            return "Payment process failed because order with order ID not exist or not belongs to this user Id";
-        }
-        Boolean paymentConfirmation = authClient.paymentOrder(userId, paymentRequestDTO);
-        log.info("Check: {}", paymentConfirmation);
-        if (!paymentConfirmation) {
-            return "Payment process failed!";
-        }
         try {
-            log.info("Payment confirmation: {}", orderId);
-            orderDomainService.processPayment(orderId);
-            return "Payment process successfully";
+            Order order = orderDomainService.getOrderById(orderId);
+            log.info("Order: {}", order);
+            // just verify
+            if (order == null || !order.getUserId().equals(userId)) {
+                return "Payment process failed because order with order ID not exist or not belongs to this user Id";
+            }
+            applicationEventPublisher.publishEvent(orderAppMapper.paymentRequestDtoToPaymentDetail(userId, orderId, order.getTotalAmount(), paymentRequestDTO));
         } catch (Exception err) {
-            return "Payment process failed! Error: " + err;
+            return "Payment process failed because: " + err.getMessage();
         }
+        return "Payment process successfully";
     }
 
+    @Override
+    @Transactional
+    public Boolean cancelOrder(UUID orderId) {
+        try {
+            Order order = orderDomainService.getOrderById(orderId);
+            List<OrderItem> orderItems = orderDomainService.getOrderItemsByOrderId(orderId);
+            if (order.getStatus().equals("PAID")) {
+                log.info("Refund for this order {}", orderId);
+                applicationEventPublisher.publishEvent(orderAppMapper.createOrderCancelledEventRefund(order.getUserId(), order.getTotalAmount()));
+            }
+            applicationEventPublisher.publishEvent(orderAppMapper.createOrderCancelledEventRestock(orderItems));
+            orderDomainService.cancelOrder(orderId);
+        } catch (Exception e) {
+            throw (new RuntimeException("Failed to delete the order. Error: " + e.getMessage()));
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public void updateOrderStatus(UUID orderId, String status) {
+        orderDomainService.updateOrderStatus(orderId, status);
+    }
 }

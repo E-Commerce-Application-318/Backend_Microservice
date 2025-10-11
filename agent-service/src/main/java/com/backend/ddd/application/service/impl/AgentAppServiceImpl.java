@@ -14,14 +14,30 @@ import java.util.UUID;
 @Slf4j
 @Service
 public class AgentAppServiceImpl implements AgentAppService {
+
     @Autowired
     private OrderClient orderClient;
 
     @Override
-    public List<ExternalOrderResponse> getAllOrdersByUserId(UUID userId){
+    public List<ExternalOrderResponse> getAllOrdersByUserId(UUID userId) {
         List<ExternalOrderResponse> externalOrderResponseList = orderClient.getAllOrders(userId);
-        log.info("External Order Response List: " + externalOrderResponseList);
         return externalOrderResponseList;
     }
 
+    @Override
+    public ExternalOrderResponse createOrder(UUID userId, List<UUID> cartIds) {
+        ExternalOrderResponse externalOrderResponse = orderClient.createOrder(userId, cartIds);
+        return externalOrderResponse;
+    }
+    @Override
+    public String updateOrder(UUID orderId, String address, String phoneNumber) {
+        String result = orderClient.updateOrder(orderId, address, phoneNumber);
+        return result;
+    }
+
+    @Override
+    public String cancelOrder(UUID orderId) {
+        String result = orderClient.cancelOrder(orderId);
+        return result;
+    }
 }

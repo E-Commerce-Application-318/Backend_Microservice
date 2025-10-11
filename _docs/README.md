@@ -64,9 +64,15 @@ curl -G "http://localhost:8086/agents" ^
 
 ### get all orders of user
 List all orders already have
+```bash
 curl -G "http://localhost:8086/agents" ^
---data-urlencode "sessionId=2" ^
+--data-urlencode "sessionId=1" ^
 --data-urlencode "userMessage=Get all orders. My user ID is 11111111-1111-1111-1111-111111111111"
+```
+
+curl -G "http://localhost:8086/agents" ^
+--data-urlencode "sessionId=1" ^
+--data-urlencode "userMessage=Get all orders"
 
 ### update order for user
 ```bash

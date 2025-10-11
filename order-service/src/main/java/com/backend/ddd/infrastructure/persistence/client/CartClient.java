@@ -1,13 +1,11 @@
 package com.backend.ddd.infrastructure.persistence.client;
 
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalApiResponse;
+import com.backend.ddd.infrastructure.persistence.client.model.ExternalCartResponse;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class CartClient {
@@ -19,28 +17,17 @@ public class CartClient {
     }
 
     /**
-     * get productIds and quantities that are selected (input by request) in the cart
+     * get cart details by list of cartIds
      * @param cartIds
      * @return
      */
-    public Map<UUID, Integer> getProductIdsAndQuantitiesByCartIds(List<UUID> cartIds) {
-        ExternalApiResponse<Map<UUID, Integer>> externalApiResponse = cartWebClient.post()
-                .uri("/get-productids-quantity-by-cart-ids")
+    public List<ExternalCartResponse> getCartsByCartIds(List<UUID> cartIds) {
+        ExternalApiResponse<List<ExternalCartResponse>> externalApiResponse = cartWebClient.post()
+                .uri("/get-carts-by-cart-ids")
                 .bodyValue(cartIds)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<Map<UUID, Integer>>>() {})
+                .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<List<ExternalCartResponse>>>() {})
                 .block();
         return externalApiResponse != null ? externalApiResponse.getData() : null;
     }
-
-//    public Boolean removeCartsByCartIds(List<UUID> cartIds) {
-//        ExternalApiResponse<Boolean> externalApiResponse = cartWebClient.method(HttpMethod.DELETE)
-//                .uri("/remove-carts")
-//                .bodyValue(cartIds)
-//                .retrieve()
-//                .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<Boolean>>() {})
-//                .block();
-//        return externalApiResponse != null && externalApiResponse.getData();
-//    }
-
 }

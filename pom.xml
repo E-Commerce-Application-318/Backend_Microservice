@@ -16,6 +16,8 @@
         <module>agent-service</module>
         <module>cart-service</module>
         <module>share-domain</module>
+        <module>scheduler-service</module>
+        <module>analytic-service</module>
     </modules>
 
     <properties>

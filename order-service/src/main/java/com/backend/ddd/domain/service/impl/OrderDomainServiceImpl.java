@@ -45,4 +45,14 @@ public class OrderDomainServiceImpl implements OrderDomainService {
         orderDomainRepository.processPayment(orderId);
     }
 
+    @Override
+    public void cancelOrder(UUID orderId) {
+        orderDomainRepository.cancelOrder(orderId);
+    }
+
+    @Override
+    public void updateOrderStatus(UUID orderId, String status) {
+        orderDomainRepository.updateOrderStatus(orderId, status);
+    }
+
 }

@@ -73,7 +73,7 @@ public class AuthController {
         return ResponseEntity.ok().body(ApiResponseDTO.success(authResponse.getMessage(), authResponseDTO));
     }
 
-    @GetMapping("/{userId}/get-address")
+    @GetMapping("/{userId}/get-user-detail")
     public ResponseEntity<ApiResponseDTO<UserDetailResponseDTO>> getAddress(
             @PathVariable("userId") UUID userId) {
         UserDetailResponseDTO userDetailResponseDTO = authAppService.getUserDetail(userId);
@@ -82,14 +82,14 @@ public class AuthController {
         return ResponseEntity.ok().body(ApiResponseDTO.success("Success fetching address", userDetailResponseDTO));
     }
 
-    @PostMapping("/{userId}/confirm_payment")
-    public ResponseEntity<ApiResponseDTO<Boolean>> getPayment(
-            @PathVariable("userId") UUID userId,
-            @RequestBody PaymentRequestDTO paymentRequestDTO
-    ) {
-        if (authAppService.processPayment(userId, paymentRequestDTO)) {
-            return ResponseEntity.ok().body(ApiResponseDTO.success("Payment confirmed", true));
-        }
-        return ResponseEntity.badRequest().body(ApiResponseDTO.error("Payment Detail wrong"));
-    }
+//    @PostMapping("/{userId}/confirm_payment")
+//    public ResponseEntity<ApiResponseDTO<Boolean>> getPayment(
+//            @PathVariable("userId") UUID userId,
+//            @RequestBody PaymentRequestDTO paymentRequestDTO
+//    ) {
+//        if (authAppService.processPayment(userId, paymentRequestDTO)) {
+//            return ResponseEntity.ok().body(ApiResponseDTO.success("Payment confirmed", true));
+//        }
+//        return ResponseEntity.badRequest().body(ApiResponseDTO.error("Payment Detail wrong"));
+//    }
 }

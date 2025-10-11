@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Data
 @Accessors
-public class ExternalProduct {
+public class ExternalProductResponse {
     private UUID id;
     private UUID shopId;
     private String name;

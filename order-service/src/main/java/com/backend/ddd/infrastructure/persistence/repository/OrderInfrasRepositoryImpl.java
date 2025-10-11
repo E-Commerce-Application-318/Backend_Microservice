@@ -51,4 +51,14 @@ public class OrderInfrasRepositoryImpl implements OrderDomainRepository {
     public void processPayment(UUID orderId) {
         orderJPAMapper.processPayment(orderId);
     }
+
+    @Override
+    public void cancelOrder(UUID orderId) {
+        orderJPAMapper.cancelOrder(orderId);
+    }
+
+    @Override
+    public void updateOrderStatus(UUID orderId, String status) {
+        orderJPAMapper.updateOrderStatus(orderId, status);
+    }
 }

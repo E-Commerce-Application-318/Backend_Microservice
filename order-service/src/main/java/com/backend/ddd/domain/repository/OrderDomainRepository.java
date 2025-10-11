@@ -13,5 +13,7 @@ public interface OrderDomainRepository {
     List<OrderItem> saveOrderItems(List<OrderItem> orderItems);
     List<OrderItem> getOrderItemsByOrderId(UUID orderId);
     void processPayment(UUID orderId);
+    void cancelOrder(UUID orderId);
+    void updateOrderStatus(UUID orderId, String status);
 }
 

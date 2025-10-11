@@ -13,6 +13,7 @@ public class OrderResponseDTO {
     private UUID id;
     private Double totalAmount;
     private String status;
+    private String userFullName;
     private String shippingAddress;
     private String phoneNumber;
     private Date createdAt;

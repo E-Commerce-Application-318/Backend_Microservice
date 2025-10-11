@@ -2,6 +2,7 @@ package com.backend.ddd.infrastructure.persistence.client;
 
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalApiResponse;
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalOrderResponse;
+import com.backend.ddd.infrastructure.persistence.client.model.ExternalUpdateOrderRequest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -25,5 +26,39 @@ public class OrderClient {
         return externalApiResponse != null ? externalApiResponse.getData() : null;
     }
 
+    public ExternalOrderResponse createOrder(
+            UUID userId, List<UUID> cartIds
+    ) {
+        ExternalApiResponse<ExternalOrderResponse> externalApiResponse = orderWebClient.post()
+                .uri("/{userId}/create-order", userId)
+                .bodyValue(cartIds)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<ExternalOrderResponse>>() {})
+                .block();
+        return externalApiResponse != null ? externalApiResponse.getData() : null;
+    }
 
+    public String updateOrder(
+            UUID orderId, String address, String phoneNumber
+    ) {
+        ExternalUpdateOrderRequest updateOrderRequest = new ExternalUpdateOrderRequest(orderId, address, phoneNumber);
+        ExternalApiResponse<String> externalApiResponse = orderWebClient.put()
+                .uri("/update-order")
+                .bodyValue(updateOrderRequest)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<String>>() {})
+                .block();
+        return externalApiResponse != null ? externalApiResponse.getData() : "Failure";
+    }
+
+    public String cancelOrder(UUID orderId) {
+        ExternalApiResponse<String> externalApiResponse = orderWebClient.delete()
+                .uri("/cancel-order/{orderId}", orderId)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<String>>() {})
+                .block();
+        return externalApiResponse != null ? externalApiResponse.getData() : "Failure";
+
+
+    }
 }

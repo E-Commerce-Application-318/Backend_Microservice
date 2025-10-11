@@ -61,5 +61,11 @@
             <artifactId>spring-security-crypto</artifactId>
             <version>6.5.2</version>
         </dependency>
+        <!--        shared domain for event messaging-->
+        <dependency>
+            <groupId>com.backend</groupId>
+            <artifactId>share-domain</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 </project>

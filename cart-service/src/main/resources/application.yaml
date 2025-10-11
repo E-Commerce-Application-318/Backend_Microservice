@@ -15,6 +15,7 @@ spring:
   cloud:
     stream:
       bindings:
+        # cosumer
         receivedOrderCreatingEvent-in-0:
           destination: order-created
       kafka:

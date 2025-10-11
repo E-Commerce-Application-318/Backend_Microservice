@@ -1,15 +1,19 @@
 package com.backend.ddd.controller.model.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.UUID;
 
 @Data
-@Accessors(chain = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class CartResponseDTO {
-    private Integer totalItem;
-    private Double totalAmount;
-    List<ProductResponseDTO> productReponseDTOs;
+    private UUID id;
+    private UUID productId;
+    private String productName;
+    private String brand;
+    private Double price;
+    private Integer quantity;
 }

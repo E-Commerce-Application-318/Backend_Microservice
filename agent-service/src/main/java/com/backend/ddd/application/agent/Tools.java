@@ -15,28 +15,25 @@ public class Tools {
     @Autowired
     private AgentAppService agentAppService;
 
-    @Tool
-    public String getAllCarts(UUID userId) {
-        return "List of cart";
-    }
+//    @Tool
+//    public String getAllCarts(UUID userId) {
+//        return "List of cart";
+//    }
 
     @Tool
-    public String getAllOrdersByUserId(UUID userId) {
-        return "Get all orders Check user ID: 123";
-//        return agentAppService.getAllOrdersByUserId(userId);
+    public List<ExternalOrderResponse> getAllOrdersByUserId(UUID userId) {
+        return agentAppService.getAllOrdersByUserId(userId);
     }
     @Tool
-    public String createOrderByUserId(UUID userId, List<UUID> cartIds) {
+    public String createOrderWithUserIdAndCartIds(
+            UUID userId, List<UUID> cartIds
+    ) {
+        agentAppService.createOrder(userId, cartIds);
         return "Create Order By userId";
     }
 
     @Tool
-    public String createOrderByUsername(String username, List<UUID> cardIds) {
-        return "Create Order By username";
-    }
-
-    @Tool
-    public String updateOrder(String address, String phoneNumber) {
+    public String updateOrder(UUID orderId, String address, String phoneNumber) {
         return "Update order by address: " + address + ", phoneNumber: " + phoneNumber;
     }
 

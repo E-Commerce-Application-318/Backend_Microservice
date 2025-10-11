@@ -10,6 +10,8 @@ public class ExternalOrderResponse {
     private UUID id;
     private UUID userId;
     private Double totalAmount;
+    private String status;
+    private String userFullName;
     private String shippingAddress;
     private String phoneNumber;
     private List<ExternalOrderItemResponse> externalOrderItemResponses;

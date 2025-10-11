@@ -34,4 +34,7 @@ public class Payment {
 
     @Column(name="cvv")
     private String cvv;
+
+    @Column(name="balance")
+    private Double balance;
 }

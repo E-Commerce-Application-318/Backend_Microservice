@@ -15,12 +15,13 @@ spring:
   cloud:
     stream:
       bindings:
-        receivedOrderCreatingEvent-in-0:
+        # consumer
+        receivedOrderCreatedEvent-in-0:
           destination: order-created
-        receivedOrderCancellingEvent-in-0:
-          destination: order-cancelled
+        receivedOrderCancelledEventRestock-in-0:
+          destination: order-cancelled-restock
       kafka:
         binder:
           brokers: localhost:9092
     function:
-      definition: receivedOrderCreatingEvent;receivedOrderCancellingEvent
+      definition: receivedOrderCreatedEvent;receivedOrderCancelledEventRestock

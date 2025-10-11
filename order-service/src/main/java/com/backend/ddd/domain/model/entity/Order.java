@@ -29,6 +29,9 @@ public class Order {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "user_fullname")
+    private String userFullName;
+
     @Column(name = "shipping_address")
     private String shippingAddress;
 

@@ -16,4 +16,5 @@ public interface AuthDomainRepository {
 
     // Payment database
     Payment getPaymentByUserId(UUID userId);
+    Payment savePayment(Payment payment);
 }

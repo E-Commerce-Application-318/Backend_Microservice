@@ -5,7 +5,8 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain=true)
-public class ExternalUser {
-    private String address;
-    private String phoneNumber;
+public class ExternalApiResponse <T> {
+    private String success;
+    private String message;
+    private T data;
 }

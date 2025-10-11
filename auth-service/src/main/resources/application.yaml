@@ -12,3 +12,19 @@ spring:
       ddl-auto: update # None change
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  cloud:
+    stream:
+      bindings:
+        # publisher
+        statusUpdatedChannel:
+          destination: order-status-updated
+        # consumer
+        receivedPaymentProcessingEvent-in-0:
+          destination: order-payment-processed
+        receivedOrderCancelledEventRefund-in-0:
+          destination: order-cancelled-refund
+      kafka:
+        binder:
+          brokers: localhost:9092
+    function:
+      definition: receivedPaymentProcessingEvent;receivedOrderCancelledEventRefund

@@ -1,12 +1,11 @@
 package com.backend.ddd.infrastructure.persistence.client;
 
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalApiResponse;
-import com.backend.ddd.infrastructure.persistence.client.model.ExternalProduct;
+import com.backend.ddd.infrastructure.persistence.client.model.ExternalProductResponse;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class ProductClient {
@@ -21,12 +20,12 @@ public class ProductClient {
      * @param productIds
      * @return
      */
-    public List<ExternalProduct> getProductsByProductIds(List<UUID> productIds) {
-        ExternalApiResponse<List<ExternalProduct>> externalApiResponse = productWebClient.post()
+    public List<ExternalProductResponse> getProductsByProductIds(List<UUID> productIds) {
+        ExternalApiResponse<List<ExternalProductResponse>> externalApiResponse = productWebClient.post()
                 .uri("/product-detail-list")
                 .bodyValue(productIds)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<List<ExternalProduct>>>() {})
+                .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<List<ExternalProductResponse>>>() {})
                 .block();
         return externalApiResponse != null ? externalApiResponse.getData() : List.of();
     }

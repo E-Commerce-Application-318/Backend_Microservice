@@ -15,4 +15,5 @@ public interface AuthDomainService {
     Optional<User> getUserDetail(UUID userId);
 
     Payment getPaymentByUserId(UUID userId);
+    Payment savePayment(Payment payment);
 }

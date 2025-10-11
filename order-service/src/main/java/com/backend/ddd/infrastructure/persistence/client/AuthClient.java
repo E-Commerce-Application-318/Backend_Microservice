@@ -2,7 +2,7 @@ package com.backend.ddd.infrastructure.persistence.client;
 
 import com.backend.ddd.controller.model.dto.PaymentRequestDTO;
 import com.backend.ddd.infrastructure.persistence.client.model.ExternalApiResponse;
-import com.backend.ddd.infrastructure.persistence.client.model.ExternalUser;
+import com.backend.ddd.infrastructure.persistence.client.model.ExternalUserResponse;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -20,11 +20,11 @@ public class AuthClient {
      * @param userID
      * @return
      */
-    public ExternalUser getAddressByUserId(UUID userID) {
-        ExternalApiResponse<ExternalUser> externalApiResponse = authWebClient.get()
-                .uri("/{userId}/get-address", userID)
+    public ExternalUserResponse getAddressByUserId(UUID userID) {
+        ExternalApiResponse<ExternalUserResponse> externalApiResponse = authWebClient.get()
+                .uri("/{userId}/get-user-detail", userID)
                 .retrieve()
-                .bodyToMono(new org.springframework.core.ParameterizedTypeReference<ExternalApiResponse<ExternalUser>>() {})
+                .bodyToMono(new org.springframework.core.ParameterizedTypeReference<ExternalApiResponse<ExternalUserResponse>>() {})
                 .block();
         return externalApiResponse != null ? externalApiResponse.getData() : null;
     }
