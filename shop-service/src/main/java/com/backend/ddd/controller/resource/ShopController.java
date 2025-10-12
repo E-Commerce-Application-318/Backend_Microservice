@@ -1,7 +1,6 @@
 package com.backend.ddd.controller.resource;
 
 import com.backend.ddd.application.model.ProductResponse;
-import com.backend.ddd.application.model.ShopProductsResponse;
 import com.backend.ddd.application.model.ShopResponse;
 import com.backend.ddd.application.service.ShopAppService;
 import com.backend.ddd.controller.model.dto.ApiResponseDTO;
@@ -57,8 +56,4 @@ public class ShopController {
                 .setProductResponses(productResponseList);
         return ResponseEntity.ok().body(ApiResponseDTO.success("Successful load shop detail and products", shopProductsResponseDTO));
     }
-//    @GetMapping("all-products")
-//    public ResponseEntity<ApiResponseDTO<List<Prod>>> getAllProducts(@PathVariable String shopId){
-//
-//    }
 }
