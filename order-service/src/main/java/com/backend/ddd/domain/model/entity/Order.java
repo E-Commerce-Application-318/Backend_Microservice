@@ -17,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Order {
     @Id
-    @Column(name = "id", columnDefinition = "BINARY(16)")
+    @Column(name = "id")
     private UUID id;
 
     @Column(name = "user_id")

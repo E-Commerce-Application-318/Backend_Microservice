@@ -44,7 +44,10 @@ public class OrderAppMapper {
         List<OrderItemEvent> orderItemEvents = orderItems.stream()
                 .map(item -> new OrderItemEvent(
                         item.getOrderItemId().getProductId(),
-                        item.getQuantity()
+                        item.getProductName(),
+                        item.getBrand(),
+                        item.getQuantity(),
+                        item.getUnitPrice()
                 )).toList();
         return new OrderCreatedEvent(order.getUserId(), order.getTotalAmount(), orderItemEvents, cartIds);
     }

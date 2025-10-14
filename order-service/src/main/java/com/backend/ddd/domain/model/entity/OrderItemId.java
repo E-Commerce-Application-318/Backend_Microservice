@@ -16,9 +16,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderItemId implements Serializable {
-    @Column(name = "order_id", columnDefinition = "binary(16)")
+    @Column(name = "order_id")
     private UUID orderId;
 
-    @Column(name = "product_id", columnDefinition = "binary(16)")
+    @Column(name = "product_id")
     private UUID productId;
 }

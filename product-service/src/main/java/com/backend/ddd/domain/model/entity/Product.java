@@ -17,10 +17,10 @@ import java.util.UUID;
 public class Product {
     @Id
     @GeneratedValue
-    @Column(name = "id", columnDefinition = "BINARY(16)")
+    @Column(name = "id")
     private UUID id;
 
-    @Column(name="shop_id", columnDefinition = "BINARY(16)")
+    @Column(name="shop_id")
     private UUID shopId;
 
     private String name;

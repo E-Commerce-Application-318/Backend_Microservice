@@ -12,5 +12,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class OrderItemEvent {
     private UUID productId;
-    private Integer Quantity;
+    private String productName;
+    private String brand;
+    private Integer quantity;
+    private Double price;
 }

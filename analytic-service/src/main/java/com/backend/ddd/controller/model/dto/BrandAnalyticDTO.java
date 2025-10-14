@@ -9,9 +9,9 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class QuantityByProductDTO {
-    private String key; // composite key = productId + productName
-    private Integer quantity;
+public class BrandAnalyticDTO {
+    private String brand;
+    private String data;
     private Instant windowStart;
     private Instant windowEnd;
 }

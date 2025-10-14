@@ -3,28 +3,33 @@ server:
 spring:
   cloud:
     function:
-      definition: receivedOrderCreatedEvent
+      definition: receivedOrderCreatedEventForProduct;receivedOrderCreatedEventForBrand
     stream:
       bindings:
         # consumer
-        receivedOrderCreatedEvent-in-0:
+        receivedOrderCreatedEventForProduct-in-0:
           destination: order-created
-          contentType: application/json
+        receivedOrderCreatedEventForBrand-in-0:
+          destination: order-created
       kafka:
+        binder:
+          brokers: localhost:9092
         streams:
           binder:
-            brokers: localhost:9092
             configuration:
-              application.id: analytics-service
               commit.interval.ms: 500
+              state.dir: C:/tmp/kafka-state
+
+          #              application.id: analytic-service
               # Default SerDes
-              default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-              default.value.serde: org.springframework.kafka.support.serializer.JsonSerde
+#              default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+#              default.value.serde: org.springframework.kafka.support.serializer.JsonSerde
               # JsonSerde
-              spring.json.value.default.type: com.backend.shared.domain.order_product.OrderCreatedEvent
-              spring.json.trusted.packages: "*"
+#              spring.json.value.default.type: com.backend.shared.domain.order_product.OrderCreatedEvent
+#              spring.json.trusted.packages: "*"
+
+
 
 windowstore:
   name: product-windowstore
-  size:
-    ms: 30000
+  size.ms: 30000

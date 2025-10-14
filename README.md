@@ -1,6 +1,6 @@
 # E-Commerce Microservices Backend
 
-A microservices-based e-commerce platform built with Spring Boot, intergrated AI-agentic service, implementing Domain-Driven Design (DDD) principles and event-driven architecture using Apache Kafka.
+A microservices-based e-commerce platform built with Spring Boot, integrated AI-agentic service, implementing Domain-Driven Design (DDD) principles and event-driven architecture using Apache Kafka.
 
 ## Architecture Overview
 
@@ -49,7 +49,9 @@ Each service maintains its own database:
 ### Environment Setup
 
 1. **Start the databases:**
+Create folder ".csit318_environment", if the folder data in ".csit318_environment" already exist so please delete folder "data" befdore run docker compose
 ```bash
+mkdir .csit318_environment 
 cd .csit318_environment
 docker-compose -f docker-compose-dev.yml up
 ```
@@ -80,7 +82,7 @@ cd analytic-service && mvn spring-boot:run
 cd scheduler-service && mvn spring-boot:run
 ```
 
-## 📋 Service Details
+## Service Details
 
 ### 1. Auth Service (Port 8081)
 
@@ -368,8 +370,8 @@ cd scheduler-service && mvn spring-boot:run
 
 ```bash
 # Get all orders
-curl -G "http://localhost:8086/agents" \
---data-urlencode "sessionId=1" \
+curl -G "http://localhost:8086/agents" ^
+--data-urlencode "sessionId=1" ^
 --data-urlencode "userMessage=Get all orders. My user ID is 11111111-1111-1111-1111-111111111111"
 
 # Update order address

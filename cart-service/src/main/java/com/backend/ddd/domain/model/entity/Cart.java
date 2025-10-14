@@ -17,13 +17,13 @@ import java.util.UUID;
 public class Cart {
     @Id
     @GeneratedValue
-    @Column(name = "id", columnDefinition = "binary(16)")
+    @Column(name = "id")
     private UUID id;
 
-    @Column(name = "user_id", columnDefinition = "binary(16)")
+    @Column(name = "user_id")
     private UUID userId;
 
-    @Column(name = "product_id", columnDefinition = "binary(16)")
+    @Column(name = "product_id")
     private UUID productId;
 
     @Column(name = "product_name")

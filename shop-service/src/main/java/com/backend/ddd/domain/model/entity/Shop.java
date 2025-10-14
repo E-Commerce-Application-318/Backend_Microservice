@@ -16,10 +16,10 @@ import java.util.UUID;
 public class Shop {
     @Id
     @GeneratedValue
-    @Column(name = "id", columnDefinition = "BINARY(16)")
+    @Column(name = "id")
     private UUID id;
 
-    @Column(name = "user_id", columnDefinition = "BINARY(16)", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private UUID userId;
 
     private String name;

@@ -42,11 +42,12 @@ public class AgentController {
         }
     }
 
-    @GetMapping("/test/get-all-order/{userId}")
-    public ResponseEntity<List<ExternalOrderResponse>> getOrder(
-            @PathVariable("userId") UUID userId
-    ) {
-        List<ExternalOrderResponse> externalOrderResponseList = agentAppService.getAllOrdersByUserId(userId);
-        return ResponseEntity.ok(externalOrderResponseList);
-    }
+//    @GetMapping("/test/get-all-order/{userId}")
+//    public ResponseEntity<List<ExternalOrderResponse>> getOrder(
+//            @PathVariable("userId") UUID userId
+//    ) {
+//        List<ExternalOrderResponse> externalOrderResponseList =
+//        .getAllOrdersByUserId(userId);
+//        return ResponseEntity.ok(externalOrderResponseList);
+//    }
 }

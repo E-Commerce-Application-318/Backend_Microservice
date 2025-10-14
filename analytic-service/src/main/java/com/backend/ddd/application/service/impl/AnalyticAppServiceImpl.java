@@ -1,6 +1,7 @@
 package com.backend.ddd.application.service.impl;
 
 import com.backend.ddd.application.service.AnalyticAppService;
+import com.backend.ddd.controller.model.dto.BrandAnalyticDTO;
 import com.backend.ddd.controller.model.dto.QuantityByProductDTO;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Windowed;
@@ -38,21 +39,54 @@ public class AnalyticAppServiceImpl implements AnalyticAppService {
         Instant timeFrom = Instant.ofEpochMilli(targetWindowStartTime);
         Instant timeTo = timeFrom.plus(Duration.ofMillis(WINDOW_SIZE_MS));
 
-        try (KeyValueIterator<Windowed<String>, Integer> all = getProductQuantityStore().fetchAll(timeFrom, timeTo)) {
+        try (KeyValueIterator<Windowed<String>, Integer> all = getProductAnalytic().fetchAll(timeFrom, timeTo)) {
             while (all.hasNext()) {
                 KeyValue<Windowed<String>, Integer> kv = all.next();
-                QuantityByProductDTO quantityByProduct = new QuantityByProductDTO();
-                quantityByProduct.setProductId(kv.key.key());
-                quantityByProduct.setQuantity(kv.value);
-                quantityByProduct.setWindowStart(kv.key.window().startTime());
-                quantityByProduct.setWindowEnd(kv.key.window().endTime());
+                QuantityByProductDTO quantityByProduct = new QuantityByProductDTO(
+                    kv.key.key(),
+                    kv.value,
+                    kv.key.window().startTime(),
+                    kv.key.window().endTime()
+                );
                 windowedQuantityByProduct.add(quantityByProduct);
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         return windowedQuantityByProduct;
     }
 
-    private ReadOnlyWindowStore<String, Integer> getProductQuantityStore() {
-        return this.interactiveQueryService.getQueryableStore(WINDOWSTORE_NAME, QueryableStoreTypes.windowStore());
+    @Override
+    public List<BrandAnalyticDTO> brandAnalyticProcess() {
+        List<BrandAnalyticDTO> windowedBrandAnalyticDTOs = new ArrayList<>();
+        long now = Instant.now().toEpochMilli();
+
+        // calculate the time range for most recently completeted window
+        long targetWindowStartTime = (now / WINDOW_SIZE_MS) * WINDOW_SIZE_MS - WINDOW_SIZE_MS;
+        Instant timeFrom = Instant.ofEpochMilli(targetWindowStartTime);
+        Instant timeTo = timeFrom.plus(Duration.ofMillis(WINDOW_SIZE_MS));
+        try (KeyValueIterator<Windowed<String>, String> all = getBrandAnalytic().fetchAll(timeFrom, timeTo)) {
+            while (all.hasNext()) {
+                KeyValue<Windowed<String>, String> kv = all.next();
+                BrandAnalyticDTO brandAnalyticDTO = new BrandAnalyticDTO(
+                        kv.key.key(),
+                        kv.value,
+                        kv.key.window().startTime(),
+                        kv.key.window().endTime()
+                );
+                windowedBrandAnalyticDTOs.add(brandAnalyticDTO);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return windowedBrandAnalyticDTOs;
+    }
+
+    private ReadOnlyWindowStore<String, Integer> getProductAnalytic() {
+        return this.interactiveQueryService.getQueryableStore(WINDOWSTORE_NAME + "-product", QueryableStoreTypes.windowStore());
+    }
+
+    private ReadOnlyWindowStore<String, String> getBrandAnalytic() {
+        return this.interactiveQueryService.getQueryableStore(WINDOWSTORE_NAME + "-brand", QueryableStoreTypes.windowStore());
     }
 }

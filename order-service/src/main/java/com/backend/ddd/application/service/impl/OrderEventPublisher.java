@@ -75,10 +75,15 @@ public class OrderEventPublisher {
             log.error("Error while sending OrderCancelledEvent for order to refund: ", e);
         }
     }
+
+    /**
+     * 
+     * @param paymentDetail
+     */
     @EventListener
-    public void handlePaymentProcessEvent(PaymentDetail event) {
+    public void handlePaymentProcessEvent(PaymentDetail paymentDetail) {
         try {
-            if (streamBridge.send("paymentProcessChannel", event))
+            if (streamBridge.send("paymentProcessChannel", paymentDetail))
                 log.info("Published event for PAYMENT PROCESSING successfully");
             else
                 throw(new Exception("Failed to send PaymentDetail for order"));
