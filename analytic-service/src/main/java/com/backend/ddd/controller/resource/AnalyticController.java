@@ -34,6 +34,6 @@ public class AnalyticController {
         if (brandAnalyticDTOs.isEmpty()) {
             return ResponseEntity.ok().body(ApiResponseDTO.success("Failed to get analytics, data is null", null));
         }
-        return ResponseEntity.ok().body(ApiResponseDTO.success("Successfully get analytic Quantity by Product", brandAnalyticDTOs));
+        return ResponseEntity.ok().body(ApiResponseDTO.success("Successfully get analytic Revenue by Brand", brandAnalyticDTOs));
     }
 }

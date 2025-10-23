@@ -24,8 +24,10 @@ public class AnalyticAppServiceImpl implements AnalyticAppService {
     @Autowired
     private InteractiveQueryService interactiveQueryService;
 
-    @Value("${windowstore.name}")
-    private String WINDOWSTORE_NAME;
+    @Value("${windowstore.product_name}")
+    private String WINDOWSTORE_NAME_PRODUCT;
+    @Value("${windowstore.brand_name}")
+    private String WINDOWSTORE_NAME_BRAND;
     @Value("${windowstore.size.ms}")
     private long WINDOW_SIZE_MS;
 
@@ -83,10 +85,10 @@ public class AnalyticAppServiceImpl implements AnalyticAppService {
     }
 
     private ReadOnlyWindowStore<String, Integer> getProductAnalytic() {
-        return this.interactiveQueryService.getQueryableStore(WINDOWSTORE_NAME + "-product", QueryableStoreTypes.windowStore());
+        return this.interactiveQueryService.getQueryableStore(WINDOWSTORE_NAME_PRODUCT, QueryableStoreTypes.windowStore());
     }
 
     private ReadOnlyWindowStore<String, String> getBrandAnalytic() {
-        return this.interactiveQueryService.getQueryableStore(WINDOWSTORE_NAME + "-brand", QueryableStoreTypes.windowStore());
+        return this.interactiveQueryService.getQueryableStore(WINDOWSTORE_NAME_BRAND, QueryableStoreTypes.windowStore());
     }
 }

@@ -4,7 +4,7 @@ server:
 langchain4j:
   google-ai-gemini:
     chat-model:
-      api-key: AIzaSyBB184eqOeredUZ425_SED4VllsFOb0aFw
+      api-key: AIzaSyDrPJNDvEIV7gHMQLAG-uWo2vCAhMpOcGM
       model-name: gemini-2.0-flash
       strict-tools: true
       temperature: 0.0

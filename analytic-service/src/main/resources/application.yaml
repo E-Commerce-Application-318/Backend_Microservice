@@ -31,5 +31,6 @@ spring:
 
 
 windowstore:
-  name: product-windowstore
+  product_name: product-windowstore
+  brand_name: brand-windowstore
   size.ms: 30000

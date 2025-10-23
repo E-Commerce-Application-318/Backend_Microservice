@@ -31,42 +31,71 @@ This project follows a microservices architecture with 8 independent services, e
 
 Each service maintains its own database:
 
-- **auth_db** (Port 3316) - Users and payment information
-- **shop_db** (Port 3317) - Shop details and information
-- **product_db** (Port 3318) - Product catalog and inventory
-- **order_db** (Port 3319) - Orders and order items
-- **cart_db** (Port 3320) - Shopping cart items
+- **auth_db** - Users and payment information
+- **shop_db** - Shop details and information
+- **product_db** - Product catalog and inventory
+- **order_db** - Orders and order items
+- **cart_db** - Shopping cart items
 
 ## Getting Started
 
 ### Prerequisites
 
-- Java 21
+- Java 21 - Required for Spring Boot 3.3.5
 - Maven 3.6+
-- Docker and Docker Compose
-- Apache Kafka (running on localhost:9092)
+- Apache Kafka
+- IntelliJ IDEA Community Edition or IntelliJ IDEA Ultimate
+- Google Gemini API Key from Google AI Studio
 
-### Environment Setup
+### Running Instructions
 
-1. **Start the databases:**
-Create folder ".csit318_environment", if the folder data in ".csit318_environment" already exist so please delete folder "data" befdore run docker compose
+1. **Clone this project via this repository link:**
+https://github.com/E-Commerce-Application-318/Backend_Microservice
+
+2. **Open the project by IntelliJ and refresh Maven by icon “M” on right-side bar in IDEA to install all dependencies**\
+
+3. **Start Kafka:**
+
+**For Windows:**
 ```bash
-mkdir .csit318_environment 
-cd .csit318_environment
-docker-compose -f docker-compose-dev.yml up
+# Start Zookeeper (in first terminal)
+C:\kafka\bin\windows\zookeeper-server-start.bat C:\kafka\config\zookeeper.properties
 ```
 
-2. **Start Kafka:**
 ```bash
-# Start Zookeeper
-C:\kafka\bin\windows\zookeeper-server-start.bat C:\kafka\config\zookeeper.properties
-
-# Start Kafka Server
+# Start Kafka Server (in second terminal)
 C:\kafka\bin\windows\kafka-server-start.bat C:\kafka\config\server.properties
 ```
 
-3. **Build and run services:**
+**For macOS/Linux:**
+```bash
+# Start Zookeeper (in first terminal)
+./kafka/bin/zookeeper-server-start.sh kafka/config/zookeeper.properties
+```
+
+```bash
+# Start Kafka Server (in second terminal)
+./kafka/bin/kafka-server-start.sh kafka/config/server.properties
+```
+4. **Step 4: Using Google AI Studio to get the API key and set the api-key in the application.yaml located in “agent-service/src/main/resources or you can use my API key already set up (if my current key is invalid please generate new API key)**
+
+5. **Build and run services:**
+- **Notice**: Start the “scheduler-service” at the end, after finishing starting all other services
+
+**Method 1:**
 - Using StartApplication in each service to start the that service
+- Start the scheduler-service the last one, and just start when need to test API from analysis to avoid too many data from auto generation.
+
+**Method 2:**
+- Choose “Edit configuration as picture below”
+- Add New Configuration and choose SpringBoot (or Application option if using Intellij Community Edition)
+- Then browse the file and choose the service
+- Tick all the services except the scheduler-service, then right click “Spring Boot” (Or Application) and choose Run. You will see that each service will run on its own port (not including scheduler-service).
+- **Start all services except scheduler-service to make the output have better visibility. Run the scheduler-service when need to test API of analytic-serivce.**
+- Tick the scheduler-service, then right-click on it; choose Run when you need to test the real-time event streaming
+
+**Method 3: (Optitonal - Not Recommended)**
+- Using bash
 ```bash
 # Build all services
 mvn clean install
@@ -81,6 +110,276 @@ cd agent-service && mvn spring-boot:run
 cd analytic-service && mvn spring-boot:run
 cd scheduler-service && mvn spring-boot:run
 ```
+## Sample Input
+### Windows Command Prompt Method:
+1. Use case 1 (FR1): User Authentication & Registration
+- Input (Registration):
+```bash
+curl -X POST "http://localhost:8081/auth/register" ^
+-H "Content-Type: application/json" ^
+-d "{\"username\": \"john_doe\", \"password\": \"password123\", \"confirmedPassword\": \"password123\", \"name\": \"John Doe\", \"email\": \"john.doe@email.com\", \"phoneNumber\": \"+1234567890\", \"role\": \"CUSTOMER\", \"birthDate\": \"1990-01-15\"}"
+```
+- Input (Authentication):
+```bash
+curl -X GET "http://localhost:8081/auth/login" ^
+-H "Content-Type: application/json" ^
+-d "{\"username\": \"john_doe\", \"password\": \"password123\"}"
+```
+2. User case 2 (FR2): Shop Management
+- Input (shop info detail):
+```bash
+curl -X GET "http://localhost:8083/shop/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/shop-detail"
+```
+- Input (shop info detail and products):
+```bash
+curl -X GET "http://localhost:8083/shop/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/shop-detail/products"
+```
+
+3. Use case 3 (FR3): Product Catalog Management
+- Input (Add new product):
+```bash
+curl -X POST "http://localhost:8082/product/shop/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/add-product" ^
+-H "Content-Type: application/json" ^
+-d "{\"name\": \"Gaming Monitor 27\\\"\", \"description\": \"High-resolution gaming monitor with 144Hz refresh rate\", \"brand\": \"DELL\", \"price\": 299.99, \"stockNumber\": 15}"
+```
+- Input (Get all products by pagination):
+```bash
+curl -X GET "http://localhost:8082/product/all-products?page=1&pagesize=10&sortby=price&sortorder=desc"
+```
+- Input (Get Product Details by ID):
+```bash
+curl -X GET "http://localhost:8082/product/product-detail/33333333-cccc-cccc-cccc-cccccccccccc"
+```
+- Input (Get Products by Shop ID with Pagination):
+```bash
+curl -X GET "http://localhost:8082/product/shop/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/all-products?page=1&pagesize=5&sortby=name&sortorder=asc"
+```
+
+4. Use case 4 (FR4): Shopping Cart Operations - Add product to cart
+- Input:
+```bash
+curl -X POST "http://localhost:8085/cart/11111111-1111-1111-1111-111111111111/add-item" ^
+-H "Content-Type: application/json" ^
+-d "{\"productId\": \"33333333-cccc-cccc-cccc-cccccccccccc\", \"quantity\": 5}"
+```
+
+5. Use case 5 (FR5, FR6): Order Creation & Stock Update
+- Input:
+```bash
+curl -X POST "http://localhost:8084/order/11111111-1111-1111-1111-111111111111/create-order" ^
+-H "Content-Type: application/json" ^
+-d "[\"11111111-1111-1111-1111-111111111111\", \"22222222-2222-2222-2222-222222222222\"]"
+```
+
+6. Use Case 6 (FR5): Order Update
+- Input:
+```bash
+curl -X PUT "http://localhost:8084/order/update-order" ^
+-H "Content-Type: application/json" ^
+-d "{\"orderId\": \"aaaaaaaa-1111-1111-1111-111111111111\", \"address\": \"Melbourne\", \"phoneNumber\": \"0423111111\"}"
+```
+
+7. Use case 7 (FR7): Payment Processing
+- Input:
+```bash
+curl -X PUT "http://localhost:8084/order/payment?orderId=aaaaaaaa-1111-1111-1111-111111111111&userId=11111111-1111-1111-1111-111111111111" ^
+-H "Content-Type: application/json" ^
+-d "{\"cardNumber\": \"4532758491029384\", \"cardHolderName\": \"VAN BINH NGUYEN\", \"expiryDate\": \"08/2027\", \"cvv\": \"123\"}"
+```
+
+Check the order that is changed from “PAYMENT REQUIRED” TO PAID after authorization for payment
+- Input:
+```bash
+curl -X GET http://localhost:8084/order/11111111-1111-1111-1111-111111111111/get-all-orders -H "Content-Type: application/json"
+```
+8. Use Case 8 (FR8, FR6, FR7): Order Cancellation & Stock Reservation & Refund
+- Input
+```bash
+curl -X PUT "http://localhost:8084/order/cancel-order/aaaaaaaa-1111-1111-1111-111111111111"
+```
+9. Use case 9 (FR9): AI Customer Support \
+- a. Get all orders of the user
+- Input:
+```bash
+curl -G "http://localhost:8086/agents" ^
+--data-urlencode "sessionId=1" ^
+--data-urlencode "userMessage=My user ID is 11111111-1111-1111-1111-111111111111. Get all orders."
+```
+- b. Update an order for the user
+- Input:
+```bash
+curl -G "http://localhost:8086/agents" ^ --data-urlencode "sessionId=1" ^ --data-urlencode "userMessage=Update order aaaaaaaa-1111-1111-1111-111111111111 with new address Town Hall Sydney and new phone number 0423360243"
+```
+- c. Create order
+- Input:
+```bash
+curl -G "http://localhost:8086/agents" ^ --data-urlencode "sessionId=1" ^ --data-urlencode "userMessage=My userId is 11111111-1111-1111-1111-111111111111 and create order with 1 product of productId dddddddd-dddd-dddd-dddd-dddddddddddd and 2 products of productId 33333333-cccc-cccc-cccc-cccccccccccc"
+```
+- d. Cancel order
+- Step 1: Ask for the cancellation of the order
+- Input:
+```bash
+curl -G "http://localhost:8086/agents" ^
+--data-urlencode "sessionId=1" ^
+--data-urlencode "userMessage=My user ID is 11111111-1111-1111-1111-111111111111. Cancel the order has ID bbbbbbbb-2222-2222-2222-222222222222"
+```
+- Step 2: Confirm cancellation
+- Input:
+```bash
+curl -G "http://localhost:8086/agents" ^ --data-urlencode "sessionId=1" ^ --data-urlencode "userMessage=My user ID is 11111111-1111-1111-1111-111111111111. Yes"
+```
+- Use case 10 (FR10. FR11): Analysis and event-streaming
+- Notice: Run the scheduler-service before testing these APIs
+- a. Product analysis
+- Input:
+```bash
+curl -X GET "http://localhost:8087/analytic/product-analytic"
+```
+- b. Brand analysis
+- Input:
+```bash
+curl -X GET "http://localhost:8087/analytic/brand-analytic"
+```
+### MacOS/Linux Command Prompt Method:
+
+1. Use case 1 (FR1): User Authentication & Registration
+- Input (Registration):
+```bash
+curl -X POST "http://localhost:8081/auth/register" \
+-H "Content-Type: application/json" \
+-d "{\"username\": \"john_doe\", \"password\": \"password123\", \"confirmedPassword\": \"password123\", \"name\": \"John Doe\", \"email\": \"john.doe@email.com\", \"phoneNumber\": \"+1234567890\", \"role\": \"CUSTOMER\", \"birthDate\": \"1990-01-15\"}"
+```
+- Input (Authentication):
+```bash
+curl -X GET "http://localhost:8081/auth/login" \
+-H "Content-Type: application/json" \
+-d "{\"username\": \"john_doe\", \"password\": \"password123\"}"
+```
+
+2. User case 2 (FR2): Shop Management
+- Input (shop info detail):
+```bash
+curl -X GET "http://localhost:8083/shop/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/shop-detail"
+```
+- Input (shop info detail and products):
+```bash
+curl -X GET "http://localhost:8083/shop/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/shop-detail/products"
+```
+
+3. Use case 3 (FR3): Product Catalog Management
+- Input (Add new product):
+```bash
+curl -X POST "http://localhost:8082/product/shop/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/add-product" \
+-H "Content-Type: application/json" \
+-d "{\"name\": \"Gaming Monitor 27\\\"\", \"description\": \"High-resolution gaming monitor with 144Hz refresh rate\", \"brand\": \"DELL\", \"price\": 299.99, \"stockNumber\": 15}"
+```
+- Input (Get all products by pagination):
+```bash
+curl -X GET "http://localhost:8082/product/all-products?page=1&pagesize=10&sortby=price&sortorder=desc"
+```
+- Input (Get Product Details by ID):
+```bash
+curl -X GET "http://localhost:8082/product/product-detail/33333333-cccc-cccc-cccc-cccccccccccc"
+```
+- Input (Get Products by Shop ID with Pagination):
+```bash
+curl -X GET "http://localhost:8082/product/shop/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/all-products?page=1&pagesize=5&sortby=name&sortorder=asc"
+```
+
+4. Use case 4 (FR4): Shopping Cart Operations - Add product to cart
+- Input:
+```bash
+curl -X POST "http://localhost:8085/cart/11111111-1111-1111-1111-111111111111/add-item" \
+-H "Content-Type: application/json" \
+-d "{\"productId\": \"33333333-cccc-cccc-cccc-cccccccccccc\", \"quantity\": 5}"
+```
+
+5. Use case 5 (FR5, FR6): Order Creation & Stock Update
+- Input:
+```bash
+curl -X POST "http://localhost:8084/order/11111111-1111-1111-1111-111111111111/create-order" \
+-H "Content-Type: application/json" \
+-d "[\"11111111-1111-1111-1111-111111111111\", \"22222222-2222-2222-2222-222222222222\"]"
+```
+
+6. Use Case 6 (FR5): Order Update
+- Input:
+```bash
+curl -X PUT "http://localhost:8084/order/update-order" \
+-H "Content-Type: application/json" \
+-d "{\"orderId\": \"aaaaaaaa-1111-1111-1111-111111111111\", \"address\": \"Melbourne\", \"phoneNumber\": \"0423111111\"}"
+```
+
+7. Use case 7 (FR7): Payment Processing
+- Input:
+```bash
+curl -X PUT "http://localhost:8084/order/payment?orderId=aaaaaaaa-1111-1111-1111-111111111111&userId=11111111-1111-1111-1111-111111111111" \
+-H "Content-Type: application/json" \
+-d "{\"cardNumber\": \"4532758491029384\", \"cardHolderName\": \"VAN BINH NGUYEN\", \"expiryDate\": \"08/2027\", \"cvv\": \"123\"}"
+```
+
+Check the order that is changed from "PAYMENT REQUIRED" TO PAID after authorization for payment
+- Input:
+```bash
+curl -X GET http://localhost:8084/order/11111111-1111-1111-1111-111111111111/get-all-orders -H "Content-Type: application/json"
+```
+
+8. Use Case 8 (FR8, FR6, FR7): Order Cancellation & Stock Reservation & Refund
+- Input:
+```bash
+curl -X PUT "http://localhost:8084/order/cancel-order/aaaaaaaa-1111-1111-1111-111111111111"
+```
+
+9. Use case 9 (FR9): AI Customer Support
+- a. Get all orders of the user
+- Input:
+```bash
+curl -G "http://localhost:8086/agents" \
+--data-urlencode "sessionId=1" \
+--data-urlencode "userMessage=My user ID is 11111111-1111-1111-1111-111111111111. Get all orders."
+```
+- b. Update an order for the user
+- Input:
+```bash
+curl -G "http://localhost:8086/agents" \
+--data-urlencode "sessionId=1" \
+--data-urlencode "userMessage=Update order aaaaaaaa-1111-1111-1111-111111111111 with new address Town Hall Sydney and new phone number 0423360243"
+```
+- c. Create order
+- Input:
+```bash
+curl -G "http://localhost:8086/agents" \
+--data-urlencode "sessionId=1" \
+--data-urlencode "userMessage=My userId is 11111111-1111-1111-1111-111111111111 and create order with 1 product of productId dddddddd-dddd-dddd-dddd-dddddddddddd and 2 products of productId 33333333-cccc-cccc-cccc-cccccccccccc"
+```
+- d. Cancel order
+- Step 1: Ask for the cancellation of the order
+- Input:
+```bash
+curl -G "http://localhost:8086/agents" \
+--data-urlencode "sessionId=1" \
+--data-urlencode "userMessage=My user ID is 11111111-1111-1111-1111-111111111111. Cancel the order has ID bbbbbbbb-2222-2222-2222-222222222222"
+```
+- Step 2: Confirm cancellation
+- Input:
+```bash
+curl -G "http://localhost:8086/agents" \
+--data-urlencode "sessionId=1" \
+--data-urlencode "userMessage=My user ID is 11111111-1111-1111-1111-111111111111. Yes"
+```
+
+10. Use case 10 (FR10, FR11): Analysis and event-streaming
+- Notice: Run the scheduler-service before testing these APIs
+- a. Product analysis
+- Input:
+```bash
+curl -X GET "http://localhost:8087/analytic/product-analytic"
+```
+- b. Brand analysis
+- Input:
+```bash
+curl -X GET "http://localhost:8087/analytic/brand-analytic"
+```
 
 ## Service Details
 
@@ -88,7 +387,7 @@ cd scheduler-service && mvn spring-boot:run
 
 **Purpose**: Handles user authentication, registration, and payment processing.
 
-**Database**: `auth_db` (Port 3316)
+**Database**: `auth_db`
 
 **Key Features**:
 - User registration and login
@@ -103,7 +402,7 @@ cd scheduler-service && mvn spring-boot:run
 | Method | Endpoint | Description        | Request Body |
 |--------|----------|--------------------|--------------|
 | GET | `/auth/index` | Test active endpoint | - |
-| GET | `/auth/login` | User login         | `LoginRequestDTO` |
+| POST | `/auth/login` | User login         | `LoginRequestDTO` |
 | POST | `/auth/register` | User registration  | `RegisterRequestDTO` |
 | GET | `/auth/{userId}/get-user-detail` | Get user details   | - |
 
@@ -146,7 +445,7 @@ cd scheduler-service && mvn spring-boot:run
 
 **Purpose**: Manages product catalog, inventory, and stock operations.
 
-**Database**: `product_db` (Port 3318)
+**Database**: `product_db`
 
 **Key Features**:
 - Product CRUD operations (create, )
@@ -165,6 +464,7 @@ cd scheduler-service && mvn spring-boot:run
 | GET | `/product/shop/{shopId}/all-products` | Get products by shop ID | Query params: page, pagesize, sortby, sortorder |
 | POST | `/product/shop/{shopId}/add-product` | Add new product to shop | `ProductRequestDTO` |
 | POST | `/product/process-order` | Process order and update stock | `Map<UUID, Integer>` |
+| POST | `/product/restock-order` | Restock products after order cancellation | `Map<UUID, Integer>` |
 
 **Request/Response Models**:
 
@@ -198,7 +498,7 @@ cd scheduler-service && mvn spring-boot:run
 
 **Purpose**: Manages shop information and shop-product relationships.
 
-**Database**: `shop_db` (Port 3317)
+**Database**: `shop_db`
 
 **Key Features**:
 - Shop information management
@@ -237,7 +537,7 @@ cd scheduler-service && mvn spring-boot:run
 
 **Purpose**: Handles order creation, management, and payment processing workflow.
 
-**Database**: `order_db` (Port 3319)
+**Database**: `order_db`
 
 **Key Features**:
 - Order creation from cart items
@@ -302,7 +602,7 @@ cd scheduler-service && mvn spring-boot:run
 
 **Purpose**: Manages shopping cart functionality and cart item operations.
 
-**Database**: `cart_db` (Port 3320)
+**Database**: `cart_db`
 
 **Key Features**:
 - Add/remove items from cart
@@ -316,6 +616,7 @@ cd scheduler-service && mvn spring-boot:run
 |--------|----------|-------------|--------------|
 | GET | `/cart/{userId}/get-all-items` | Get all cart items for user | - |
 | POST | `/cart/get-carts-by-cart-ids` | Get cart details by cart IDs | `List<UUID>` |
+| POST | `/cart/get-product-ids-quantity-by-cart-ids` | Get product IDs and quantities by cart IDs | `List<UUID>` |
 | POST | `/cart/{userId}/add-item` | Add product to cart | `CartRequestDTO` |
 | PUT | `/cart/{userId}/update-product` | Update cart item quantity | `CartRequestDTO` |
 | DELETE | `/cart/remove-carts` | Remove multiple carts | `List<UUID>` |
@@ -393,7 +694,8 @@ curl -G "http://localhost:8086/agents" \
 
 | Method | Endpoint | Description | Request Body |
 |--------|----------|-------------|--------------|
-| GET | `/analytic/quantity-by-product` | Get product quantity analytics | - |
+| GET | `/analytic/product-analytic` | Get product quantity analytics | - |
+| GET | `/analytic/brand-analytic` | Get brand revenue analytics | - |
 
 **Response Models**:
 

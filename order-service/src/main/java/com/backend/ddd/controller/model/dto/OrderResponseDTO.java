@@ -17,5 +17,5 @@ public class OrderResponseDTO {
     private String shippingAddress;
     private String phoneNumber;
     private Date createdAt;
-    List<OrderItemDTO> orderItemDTOs;
+    private List<OrderItemDTO> orderItemDTOs;
 }

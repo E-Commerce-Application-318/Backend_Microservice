@@ -17,11 +17,11 @@ import java.util.function.Consumer;
 @Configuration
 public class StreamProcessor {
 
-    @Value("${windowstore.name}")
-    private String WINDOWSTORE_NAME;
+    @Value("${windowstore.product_name}")
+    private String WINDOWSTORE_NAME_PRODUCT;
 
-//    @Value("${windowstore.name}")
-//    private String WINDOWSTORE_NAME;
+    @Value("${windowstore.brand_name}")
+    private String WINDOWSTORE_NAME_BRAND;
 
     @Bean
     public Consumer<KStream<String, OrderCreatedEvent>> receivedOrderCreatedEventForProduct() {
@@ -47,7 +47,7 @@ public class StreamProcessor {
                     })
                     .groupByKey(Grouped.with(Serdes.String(), Serdes.Integer()))
                     .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(30)))
-                    .reduce(Integer::sum, Materialized.<String, Integer, WindowStore<Bytes, byte[]>>as(WINDOWSTORE_NAME + "-product")
+                    .reduce(Integer::sum, Materialized.<String, Integer, WindowStore<Bytes, byte[]>>as(WINDOWSTORE_NAME_PRODUCT)
                             .withKeySerde(Serdes.String())
                             .withValueSerde(Serdes.Integer()));
 
@@ -81,7 +81,7 @@ public class StreamProcessor {
                         Integer totalQuantity = Integer.parseInt(existingParts[0].trim()) + Integer.parseInt(newParts[0].trim());
                         Double totalRevenue = Double.parseDouble(existingParts[1].trim()) + Double.parseDouble(newParts[1].trim());
                         return totalQuantity + "-" + totalRevenue;
-                    }, Materialized.<String, String, WindowStore<Bytes, byte[]>>as(WINDOWSTORE_NAME + "-brand")
+                    }, Materialized.<String, String, WindowStore<Bytes, byte[]>>as(WINDOWSTORE_NAME_BRAND)
                             .withKeySerde(Serdes.String())
                             .withValueSerde(Serdes.String()));
             quantityAndRevenueByBrand.toStream()

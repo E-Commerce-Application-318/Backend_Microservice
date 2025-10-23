@@ -52,7 +52,7 @@ public class OrderClient {
     }
 
     public String cancelOrder(UUID orderId) {
-        ExternalApiResponse<String> externalApiResponse = orderWebClient.delete()
+        ExternalApiResponse<String> externalApiResponse = orderWebClient.put()
                 .uri("/cancel-order/{orderId}", orderId)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ExternalApiResponse<String>>() {})

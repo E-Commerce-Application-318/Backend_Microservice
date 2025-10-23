@@ -91,7 +91,7 @@ public class OrderAppServiceImpl implements OrderAppService {
                 .setId(orderId)
                 .setUserId(userId)
                 .setTotalAmount(totalAmount)
-                .setStatus("Payment Required")
+                .setStatus("REQUIRED PAYMENT")
                 .setUserFullName(user.getName())
                 .setShippingAddress(user.getAddress())
                 .setPhoneNumber(user.getPhoneNumber())
